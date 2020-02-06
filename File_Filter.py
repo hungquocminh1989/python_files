@@ -47,6 +47,7 @@ class AnalyzeFolder:
 
     #Get list file
     def get_list_file(self, target_files, nontarget_files):
+        print("Get list file : Waiting")
         try:
             for path, subdirs, files in os.walk(self.input_folder):
                 for name in files:
@@ -57,11 +58,13 @@ class AnalyzeFolder:
                         target_files[file_path] = size_mb
                     else:
                         nontarget_files[file_path] = "-"
+            print("Get list file : Complete")
             return True
         except:
             return False
 
     def create_and_copy_file(self, dicFile):
+        print("Copy file : Waiting")
         limit_copy = self.limit_size_copy * 1024 * 1024 #Byte
         current_copy = 0 #Byte
         for file, size in dicFile.items():
@@ -114,6 +117,8 @@ class AnalyzeFolder:
                             shutil.copyfile(file, file_dist_random_path)
                             print("Created file {0}".format(file_dist_random_path))
                     break
+        print("Copy file : Complete")
+
         
     def analyze(self):
         target_files = {}
@@ -128,7 +133,7 @@ class AnalyzeFolder:
             print("Có lỗi xảy ra.")
 
 #Start application
-folder_input = "D:\\SVN_PC_08\\MMEN\\01.Docs\\99_Temp"
+folder_input = "E:\\DEVELOPMENT"
 folder_output = "\\\\192.168.1.8\\data_share\\MinhTest"
 pattern_file = "^.*.*$"
 size_group = [0, 10, 20, 30, 40, 50, 100] #MB
