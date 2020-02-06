@@ -25,14 +25,14 @@ from datetime import datetime
 
 class AnalyzeFolder:
 
-    def __init__(self, input_folder, output_folder, pattern, size_group):
+    def __init__(self, input_folder, output_folder, pattern, size_group, limit_size_copy = -1):
         self.input_folder = os.path.normpath(input_folder)
         self.output_folder = os.path.normpath(output_folder)
         self.pattern = pattern
         self.size_group = size_group
         self.size_group.sort()
-        print(self.size_group)
-
+        self.limit_size_copy = limit_size_copy
+        
         if not os.path.exists(self.input_folder):
             print(self.input_folder)
             print("Folder input not exists")
@@ -62,13 +62,26 @@ class AnalyzeFolder:
             return False
 
     def create_and_copy_file(self, dicFile):
+        limit_copy = self.limit_size_copy * 1024 * 1024 #Byte
+        current_copy = 0 #Byte
         for file, size in dicFile.items():
+            size_byte = size * 1024 * 1024 #Byte
             iter_size_group = iter(self.size_group)
             next(iter_size_group)
             for limit in size_group:
                 limit_end = next(iter_size_group, "")
                 #print("-- {0} ~ {1}".format(limit, limit_end))
                 if size >= limit and (limit_end == "" or size <= limit_end):
+
+                    #Check limited copy setting
+                    if limit_copy > 0 and (limit_copy - size_byte) > 0:
+                        limit_copy = limit_copy - size_byte
+                        current_copy = current_copy + size_byte
+                        #print(limit_copy)
+                    elif self.limit_size_copy != -1:
+                        print("Stop copy because the next file is {2}MB, but setting copy limit is {0}/{1}MB".format(round(current_copy/1024/1024, 0), self.limit_size_copy, round(size, 0)))
+                        print(file)
+                        exit()
 
                     org_file_name = os.path.basename(file)
                     filename, file_extension = os.path.splitext(org_file_name)
@@ -92,6 +105,7 @@ class AnalyzeFolder:
                     random_file_name = "File_" + datetime.now().strftime('%Y%m%d%H%M%S%f')+ "_(Duplicate with {0})".format(org_file_name) + file_extension
                     file_dist_random_path = os.path.join(folder_path, random_file_name)
                     file_dist_org_path = os.path.join(folder_path, org_file_name)
+                    
                     if os.path.exists(file):
                         if not os.path.exists(file_dist_org_path):
                             shutil.copyfile(file, file_dist_org_path)
@@ -114,7 +128,11 @@ class AnalyzeFolder:
             print("Có lỗi xảy ra.")
 
 #Start application
-size_group = [0, 10, 20] #MB
-test = AnalyzeFolder("D:\\SVN_PC_08\\MMEN\\01.Docs\\99_Temp", "C:\\py_output", "^.*.*$", size_group)
+folder_input = "D:\\SVN_PC_08\\MMEN\\01.Docs\\99_Temp"
+folder_output = "\\\\192.168.1.8\\data_share\\MinhTest"
+pattern_file = "^.*.*$"
+size_group = [0, 10, 20, 30, 40, 50, 100] #MB
+limit_copy_size = 1500 #MB (-1 is unlimited)
+test = AnalyzeFolder(folder_input, folder_output, pattern_file, size_group, limit_copy_size)
 test.analyze()
 exit()
