@@ -46,8 +46,8 @@ class AnalyzeFolder:
         return os.path.getsize(file_path)
 
     #Get list file
-    def get_list_file(self, target_files, nontarget_files):
-        print("Get list file : Waiting")
+    def prepare_data_file(self, target_files, nontarget_files):
+        print("Prepare data file : Waiting")
         try:
             for path, subdirs, files in os.walk(self.input_folder):
                 for name in files:
@@ -56,9 +56,10 @@ class AnalyzeFolder:
                         size_byte = self.get_file_size(file_path)
                         size_mb = size_byte/1024/1024 #Convert Byte to Megabyte
                         target_files[file_path] = size_mb
+                        print("Prepare data file : Indexing {0}".format(file_path))
                     else:
                         nontarget_files[file_path] = "-"
-            print("Get list file : Complete")
+            print("Prepare data file : Complete")
             return True
         except:
             return False
@@ -123,7 +124,7 @@ class AnalyzeFolder:
     def analyze(self):
         target_files = {}
         nontarget_files = {}
-        result_get_list = self.get_list_file(target_files, nontarget_files)
+        result_get_list = self.prepare_data_file(target_files, nontarget_files)
 
         if result_get_list == True:
             #print(target_files)
