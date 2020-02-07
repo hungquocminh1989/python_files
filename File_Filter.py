@@ -75,7 +75,7 @@ class AnalyzeFolder:
             for limit in size_group:
                 limit_end = next(iter_size_group, "")
                 #print("-- {0} ~ {1}".format(limit, limit_end))
-                if size >= limit and (limit_end == "" or size <= limit_end):
+                if size >= limit and (limit_end == "" or size < limit_end):
 
                     #Check limited copy setting
                     if limit_copy > 0 and (limit_copy - size_byte) > 0:
@@ -134,11 +134,11 @@ class AnalyzeFolder:
             print("Có lỗi xảy ra.")
 
 #Start application
-folder_input = "E:\\DEVELOPMENT"
-folder_output = "\\\\192.168.1.8\\data_share\\MinhTest"
+folder_input = "F:\\RecoveryData"
+folder_output = "F:\\RecoveryCheck_20200207"
 pattern_file = "^.*.*$"
-size_group = [0, 10, 20, 30, 40, 50, 100] #MB
-limit_copy_size = 1500 #MB (-1 is unlimited)
+size_group = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 200, 400, 500, 1000] #MB
+limit_copy_size = -1 #MB (-1 is unlimited)
 test = AnalyzeFolder(folder_input, folder_output, pattern_file, size_group, limit_copy_size)
 test.analyze()
 exit()
