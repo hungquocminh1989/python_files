@@ -20,7 +20,7 @@
 """
 
 #Import lib
-import os, re, fnmatch, shutil
+import os, re, fnmatch, shutil, zipfile
 from datetime import datetime
 
 class AnalyzeFolder:
@@ -109,14 +109,31 @@ class AnalyzeFolder:
                     random_file_name = "File_" + datetime.now().strftime('%Y%m%d%H%M%S%f')+ "_(Duplicate with {0})".format(org_file_name) + file_extension
                     file_dist_random_path = os.path.join(folder_path, random_file_name)
                     file_dist_org_path = os.path.join(folder_path, org_file_name)
-                    
+
+                    folder_extract_to = ""
                     if os.path.exists(file):
                         if not os.path.exists(file_dist_org_path):
                             shutil.copyfile(file, file_dist_org_path)
+                            folder_extract_to = file_dist_org_path
                             print("Created file {0}".format(file_dist_org_path))
                         else:
                             shutil.copyfile(file, file_dist_random_path)
+                            folder_extract_to = file_dist_random_path
                             print("Created file {0}".format(file_dist_random_path))
+
+                    if file_extension == ".zip":
+                        filename, file_extension = os.path.splitext(folder_extract_to)
+                        folder_extract_to = filename
+                        if not os.path.exists(folder_extract_to):
+                            os.makedirs(folder_extract_to)
+                        try:
+                            with zipfile.ZipFile(file, 'r') as zip_ref:
+                                zip_ref.extractall(folder_extract_to)
+                            print("Extracted zip : {0}".format(file))
+                        except:
+                            os.rmdir(folder_extract_to)
+                            print("Extract fail : {0}".format(file))
+                    
                     break
         print("Copy file : Complete")
 
@@ -134,8 +151,8 @@ class AnalyzeFolder:
             print("Có lỗi xảy ra.")
 
 #Start application
-folder_input = "F:\\RecoveryData"
-folder_output = "F:\\RecoveryCheck_20200207"
+folder_input = "C:\\Users\\QuocMinh\\Desktop\\test\\in"
+folder_output = "C:\\Users\\QuocMinh\\Desktop\\test\\out"
 pattern_file = "^.*.*$"
 size_group = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 200, 400, 500, 1000] #MB
 limit_copy_size = -1 #MB (-1 is unlimited)
