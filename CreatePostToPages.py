@@ -21,6 +21,7 @@
 
 #Import lib
 import json, requests
+from datetime import datetime
 from urllib.parse import urlencode
 
 class ImportPostTool:
@@ -62,6 +63,7 @@ class ImportPostTool:
                 if len(r) > 0 and r["id"] != "":
                     media_fbid["attached_media[{0}]".format(i)] = "{'media_fbid':'"+r["id"]+"'}"
 
+
         print(media_fbid)    
         return media_fbid
 
@@ -73,7 +75,7 @@ class ImportPostTool:
         
         if method == "POST":
             
-            return requests.post(url, headers, data, verify=False).json()
+            return requests.post(url, headers, data).json()
         
         elif method == "GET":
             
@@ -106,7 +108,10 @@ class ImportPostTool:
 #Start application
 folder_product_files = "C:\\Users"
 folder_page_files = "C:\\Users"
-attachments = ["https://13.231.155.63/img/dummy.png", "https://www.lixil-sashdoor.jp/mitsumori-system/estimate/img/icon/h_logo.png"]
+attachments = [
+    "https://www.donghogiarehcm.com/wp-content/uploads/2019/10/11612642516_75796048-300x300.jpg",
+    "https://www.donghogiarehcm.com/wp-content/uploads/2019/10/11545581316_75796048-300x300.jpg",
+]
 tool = ImportPostTool(folder_product_files)
-tool.create_page_post_api("2056902877684409", "test11112222", attachments, "EAASp3DPmNo8BAAfXGyC5rvZAjNdbeH5s2W7HvPpeAM412bDzcr2fZAmMA2cAXlrHD8kZAlT5xAlGJUaR5HB8t3atnSKLJnSRI4Gy9HlVkH7480gHviao3k2li8BMRMZAsbghy7TNuVrQEI6PGUStRJRLQYL6AKbDfZBRKlcpBcTUpbGniQYC8RhoQuvV2Qw9TFHNNbz6BEQZDZD")
+tool.create_page_post_api("2056902877684409", datetime.now().strftime('%Y%m%d%H%M%S%f'), attachments, "EAASp3DPmNo8BAOTGQKKeEGOZBq6qzXNgWNLQVZB7oWS4196ZBO0Y6EEpK6jV1sYDZBXe4iTwm4yC964tztPfMGlDwcpR5o98GwAHo7tpovLhAf8i3aIGZBxh3xNFq7Y4v24cTvdW3CgJLSzIMJxS7Le8tqzcCnXKn5ZAwjv0xjhZBUZALBbUBwt1OVCkQMlicagqpDiOmGS9swZDZD")
 exit()
