@@ -20,7 +20,7 @@
 """
 
 #Import lib
-import json, requests, pycurl, util
+import json, requests, pycurl, certifi
 from datetime import datetime
 from urllib.parse import urlencode
 
@@ -48,7 +48,7 @@ class ImportPostTool:
         if len(media_fbid) > 0:
             data = {**data, **media_fbid}
             print(data) 
-            result = self.curl("POST", api_url, data)
+            result = self.curl_1("POST", api_url, data)
             print(result)
             return result
             
@@ -81,8 +81,10 @@ class ImportPostTool:
             
             return requests.get(url + "?" + field, headers).json()
 
+
     def curl_1(self, method, url, data):
         crl = pycurl.Curl()
+        crl.setopt(crl.CAINFO, certifi.where())
         pf = urlencode(data)
         
         if method == "POST":
@@ -90,8 +92,12 @@ class ImportPostTool:
             crl.setopt(crl.POSTFIELDS, pf)
         elif method == "GET":
             crl.setopt(crl.URL, url + "?" + pf)
-        crl.perform()
+        r = crl.perform_rs()
+        r = json.loads(r)
         crl.close()
+        return r
+
+
 
     def upload_photo_api(self, photo_url, token):
         
@@ -106,7 +112,7 @@ class ImportPostTool:
         # [url] 
         # [published] = false
         api_url = 'https://graph.facebook.com/v2.10/me/photos'
-        result = self.curl("POST", api_url, data)
+        result = self.curl_1("POST", api_url, data)
         print(photo_url)
         print(result)
 
@@ -116,6 +122,7 @@ class ImportPostTool:
     	pass
 
 #Start application
+token = "EAASp3DPmNo8BALQJmTNSRWZByePLQTveZAYkULNZCKOoDDVJS1EcnhtlZC9zCRH2ESr8ApVULYyETBC94GCyi4ftJqrkqX0H8f3RvZA1MyHHUcOA5tIArVqoZAjZAT255ZBezi2V4F2uw6Fb1wAj3OfyIaFZAp9tS9BxJYgJQ06mhzmk4YyqyqUzZCJVp3U4MgPPXeybopdQhZBqQZDZD"
 folder_product_files = "C:\\Users"
 folder_page_files = "C:\\Users"
 attachments = [
@@ -123,5 +130,6 @@ attachments = [
     "https://www.donghogiarehcm.com/wp-content/uploads/2019/10/11545581316_75796048-300x300.jpg",
 ]
 tool = ImportPostTool(folder_product_files)
-tool.create_page_post_api("2056902877684409", datetime.now().strftime('%Y%m%d%H%M%S%f'), attachments, "EAASp3DPmNo8BAOTGQKKeEGOZBq6qzXNgWNLQVZB7oWS4196ZBO0Y6EEpK6jV1sYDZBXe4iTwm4yC964tztPfMGlDwcpR5o98GwAHo7tpovLhAf8i3aIGZBxh3xNFq7Y4v24cTvdW3CgJLSzIMJxS7Le8tqzcCnXKn5ZAwjv0xjhZBUZALBbUBwt1OVCkQMlicagqpDiOmGS9swZDZD")
+tool.create_page_post_api("2056902877684409", datetime.now().strftime('%Y%m%d%H%M%S%f'), attachments, token)
+#tool.upload_photo_api("https://www.donghogiarehcm.com/wp-content/uploads/2019/10/11612642516_75796048-300x300.jpg", token)
 exit()
