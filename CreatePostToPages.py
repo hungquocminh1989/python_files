@@ -20,7 +20,7 @@
 """
 
 #Import lib
-import json, requests
+import json, requests, pycurl, util
 from datetime import datetime
 from urllib.parse import urlencode
 
@@ -81,7 +81,17 @@ class ImportPostTool:
             
             return requests.get(url + "?" + field, headers).json()
 
+    def curl_1(self, method, url, data):
+        crl = pycurl.Curl()
+        pf = urlencode(data)
         
+        if method == "POST":
+            crl.setopt(crl.URL, url)
+            crl.setopt(crl.POSTFIELDS, pf)
+        elif method == "GET":
+            crl.setopt(crl.URL, url + "?" + pf)
+        crl.perform()
+        crl.close()
 
     def upload_photo_api(self, photo_url, token):
         
@@ -103,7 +113,7 @@ class ImportPostTool:
         return result
 
     def execute_import(self):
-        pass
+    	pass
 
 #Start application
 folder_product_files = "C:\\Users"
