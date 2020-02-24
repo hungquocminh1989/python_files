@@ -20,21 +20,23 @@
 """
 
 #Import lib
-import json, requests, pycurl, certifi, xlrd
+import os, json, requests, pycurl, certifi, xlrd
 from datetime import datetime
 from urllib.parse import urlencode
 from pandas import *
 
 class ImportPostTool:
     def __init__(self):
-        self.import_excel_files = 'C:\\Users\\QuocMinh\\Desktop\\python_files\\wp_product.xlsx'
+        self.import_excel_files = os.path.join(os.getcwd(), 'wp_product.xlsx')
 
     def read_excel_import(self):
-        dict_excel = {}
-        xls = ExcelFile(self.import_excel_files)
-        sheet_product = xls.parse(xls.sheet_names[0])
-        sheet_page = xls.parse(xls.sheet_names[1])
         
+        xls = ExcelFile(self.import_excel_files)
+        
+        sheet_product = xls.parse('Products')
+        sheet_page = xls.parse('Pages')
+
+        dict_excel = {}
         dict_excel['sheet_product'] = sheet_product.to_dict()
         dict_excel['sheet_page'] = sheet_page.to_dict()
         
@@ -71,6 +73,9 @@ class ImportPostTool:
 
         crl.setopt(crl.CAINFO, certifi.where())
 
+        #print('Post data : ')
+        #print(data)
+        
         postfields = urlencode(data)
         
         if method == "POST":
@@ -80,16 +85,31 @@ class ImportPostTool:
             crl.setopt(crl.POSTFIELDS, postfields)
 
         elif method == "GET":
-
-            crl.setopt(crl.URL, url + "?" + postfields)
+            
+            crl.setopt(crl.URL, url + "&" + postfields)
 
         result = crl.perform_rs()
 
         crl.close()
 
         result = json.loads(result)
-
+        print('Response info : ')
+        print(result)
+        
         return result
+
+    def get_token_info_api(self, token):
+
+        api_url = 'https://graph.facebook.com/v2.10/me?fields=id,name'
+
+        data = {
+            "access_token" : token,
+        }
+
+        result = self.curl("GET", api_url, data)
+        
+        return result
+        
 
     def create_page_post_api(self, page_id, message, attachments, token):
 
@@ -99,19 +119,16 @@ class ImportPostTool:
             "message" : message,
             "access_token" : token,
         }
-        print(page_id)
-        #print(token)
-        #print(attachments)
-        #print(message)
+        
         media_fbid = self.upload_multi_photo(attachments, token)
-        print(media_fbid)
+        
         if len(media_fbid) > 0:
 
             #Merge data
             data = {**data, **media_fbid}
 
             result = self.curl("POST", api_url, data)
-            print(result)
+            
             return result
             
         return None
@@ -141,23 +158,31 @@ class ImportPostTool:
         excel_page_row = len(sheet_page['No.'])
         
         for excel_page_row in range(len(sheet_page['No.'])):
-            print('-------')
-            print(excel_page_row)
-            page_name = sheet_page['Page Name'][excel_page_row].strip()
-            page_id = str(sheet_page['Page Id'][excel_page_row]).strip()
+            
             page_token = sheet_page['Token'][excel_page_row].strip()
-            for excel_product_row in range(len(sheet_product['No.'])):
-                product_name = sheet_product['Product Name'][excel_product_row].strip()
-                product_content = sheet_product['Contents'][excel_product_row]
-                product_images_list = sheet_product['Images'][excel_product_row].split('\n')
+            token_info = self.get_token_info_api(page_token)
 
-                #Post
-                self.create_page_post_api(page_id, product_content, product_images_list, page_token)
+            if len(token_info) > 0:
+
+                page_name = token_info['name']
+                page_id = token_info['id']
+
+                print('Page Name : ' + page_name)
+                print('Page Id : ' + page_id)
+            
+                for excel_product_row in range(len(sheet_product['No.'])):
+                    product_name = sheet_product['Product Name'][excel_product_row].strip()
+                    product_content = sheet_product['Contents'][excel_product_row]
+                    product_images_list = sheet_product['Images'][excel_product_row].split('\n')
+
+                    print('Product Name : ' + product_name)
+                    #Post
+                    self.create_page_post_api(page_id, product_content, product_images_list, page_token)
                 
                 
 
 #Start application
-token = "EAASp3DPmNo8BAOST4eDlXXqlg3108Xo0QNZAbsEZALHi4jCZBgeowFOTons3RN5Cyx9TQeG2oR2fYLf4CmC3qzz4LvsOpb8aqXzcWaeVu7Xo8GdH5foopVinlstZAf2geXbZAKcO1FQZAhI1G0fYsyBaMls667PIZCIwoFn6ZAZBn0CVo8LSPFJHBC00djr87nZC9mdxAsqceiuAZDZD"
+token = "EAASp3DPmNo8BAOj5AIcuhX9G0EYebbWoZBuOWZBJqbPffbxgdW6IguaCJZAGkcMI2pCMiR5lX4W0u7vNTF1MWYib2NL9Nagtm8D67ghrz6hHf6ib2dF1l7ABinyKCZAN37Xjl1bzCzcKJ6upAYL7IameooDrDIhhqKjiZAjWGzxoQwCnIwQH45KvkdDcZCvoHaQBaleBYEwgZDZD"
 page_id = '1322105514589118'
 folder_product_files = "C:\\Users"
 folder_page_files = "C:\\Users"
@@ -165,7 +190,9 @@ attachments = [
     "https://www.donghogiarehcm.com/wp-content/uploads/2019/10/11612642516_75796048-300x300.jpg",
     "https://www.donghogiarehcm.com/wp-content/uploads/2019/10/11545581316_75796048-300x300.jpg",
 ]
+
 tool = ImportPostTool()
+#tool.get_token_info(token)
 tool.execute_import()
 #tool.create_page_post_api(page_id, datetime.now().strftime('%Y%m%d%H%M%S%f'), attachments, token)
 #tool.upload_photo_api("https://www.donghogiarehcm.com/wp-content/uploads/2019/10/11612642516_75796048-300x300.jpg", token)
