@@ -27,7 +27,7 @@ from pandas import *
 
 class ImportPostTool:
     def __init__(self):
-        self.import_excel_files = os.path.join(os.getcwd(), 'wp_product.xlsx')
+        self.import_excel_files = os.path.join(os.getcwd(), 'Export_20200226170405.xlsx')
 
     def read_excel_import(self):
         
@@ -84,6 +84,14 @@ class ImportPostTool:
 
             crl.setopt(crl.POSTFIELDS, postfields)
 
+        elif method == "DELETE":
+
+            crl.setopt(crl.URL, url)
+
+            crl.setopt(crl.POSTFIELDS, postfields)
+
+            crl.setopt(crl.CUSTOMREQUEST, 'DELETE')
+
         elif method == "GET":
             
             crl.setopt(crl.URL, url + "&" + postfields)
@@ -108,6 +116,26 @@ class ImportPostTool:
 
         result = self.curl("GET", api_url, data)
         
+        return result
+
+    def delete_page_post_api(self, post_id, token):
+        api_url = 'https://graph.facebook.com/v4.0/{0}'.format(post_id)
+        data = {
+            "access_token" : token,
+        }
+        result = self.curl("DELETE", api_url, data)
+
+        return result
+
+    def get_page_post_api(self, page_id, limit, token):
+        api_ur = 'https://graph.facebook.com/v2.10/{0}/feed'.format(page_id)
+        data = {
+            "access_token" : token,
+            'fields' : 'created_time,message,attachments,permalink_url',
+            'limit' : limit,
+        }
+        result = self.curl("GET", api_url, data)
+
         return result
         
 
