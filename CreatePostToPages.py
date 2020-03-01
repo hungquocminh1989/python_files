@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.8
 # -*- coding: utf-8 -*-
 
 """
@@ -17,18 +17,28 @@
 # Copyright:   -
 #
 #-----------------------------------------------------------------------------
+#Check and update outdated packages
+#pip install pipupgrade
+#pipupgrade --check
+#pipupgrade --latest --yes
+#
+#Export/Import environments
+#pip freeze -l > requirements.txt
+#pip install -r /path/to/requirements.txt
+#-----------------------------------------------------------------------------
 """
 
-#Import lib
-import os, json, requests, pycurl, certifi, xlrd
+#Import packages
+import sys, os, json, requests, pycurl, certifi, xlrd
 from datetime import datetime
 from urllib.parse import urlencode
 from pandas import *
 
 class ImportPostTool:
     def __init__(self):
-        self.import_excel_files = os.path.join(os.getcwd(), 'Export_20200226170405.xlsx')
-
+        command_line_arguments = sys.argv
+        self.import_excel_files = command_line_arguments[1] if len(sys.argv) > 1 else os.path.join(os.getcwd(), 'Export_20200229053355.xlsx')
+        
     def read_excel_import(self):
         
         xls = ExcelFile(self.import_excel_files)
@@ -155,6 +165,10 @@ class ImportPostTool:
             #Merge data
             data = {**data, **media_fbid}
 
+            result = self.curl("POST", api_url, data)
+            
+            return result
+        else:
             result = self.curl("POST", api_url, data)
             
             return result
