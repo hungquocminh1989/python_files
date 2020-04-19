@@ -37,7 +37,7 @@ from pandas import *
 class ImportPostTool:
     def __init__(self):
         command_line_arguments = sys.argv
-        self.import_excel_files = command_line_arguments[1] if len(sys.argv) > 1 else os.path.join(os.getcwd(), 'Export_20200229053355.xlsx')
+        self.import_excel_files = command_line_arguments[1] if len(sys.argv) > 1 else os.path.join(os.getcwd(), 'Export_20200301155247.xlsx')
         
     def read_excel_import(self):
         
