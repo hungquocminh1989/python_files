@@ -39,16 +39,17 @@ from pyfacebook import Api as fb
 class ImportPostTool:
     def __init__(self):
         command_line_arguments = sys.argv
-        self.token = command_line_arguments[1] if len(sys.argv) > 1 else 'EAASp3DPmNo8BAGxTZAwIXwOyeO0EkoYSsuvqBBP5l5TgnRZAUQsyWC29gOpX8mcdskz4J9ZC3ZCjGA1XCo1g6OeEHKx7LvXjunoiVivV2v9CVZCRbLSNZCgNOBghYQ5OZBWxezJ9DR3tTtCV47dDZAPrBjFQsWxKw2mx1gaYsELkaxmSPxZBZAESPG0dms4SUZA7Yxm985sktamqgZDZD'
+        self.token = command_line_arguments[1] if len(sys.argv) > 1 else ''
         self.wcapi = API(
             url="https://donghogiarehcm.com",
             consumer_key="ck_1c3ad135042991666c034cd0574bb4e1d85325b6",
             consumer_secret="cs_217afc1d1781b772f39087b0c983d9f1046fd014",
             wp_api=True,
-            version="wc/v3"
+            version="wc/v3",
+            timeout=999999
         )
         self.number_post_fetch = 5
-        self.product_per_page = 100
+        self.product_per_page = 100 #100 is maximum
 
     def curl(self, method, url, data):
 
