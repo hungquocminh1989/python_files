@@ -47,7 +47,7 @@ class ImportPostTool:
             version="wc/v3",
             timeout=999999
         )
-        self.number_post_fetch = 5
+        self.number_post_fetch = 20
         self.product_per_page = 100 #100 is maximum
         self.category_men_suggest_arr = ['đồng hồ nam', 'dong ho nam', 'nam']
         self.category_women_suggest_arr = ['đồng hồ nữ', 'dong ho nu', 'nữ', 'nu']
@@ -196,7 +196,7 @@ class ImportPostTool:
             "name": "Auto product {0}".format(datetime.now().strftime('%Y%m%d%H%M%S%f')),
             "type": "simple",
             "status": "draft",
-            "description": item_post['message'],
+            "description": item_post['message'] + "\r\n" + "No. : " + item_post['id'],
             "meta_data": [
                 {
                   "key": '_fb_page_post_id',
