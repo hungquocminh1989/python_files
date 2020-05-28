@@ -37,9 +37,9 @@ class ImportPostTool:
     def __init__(self):
         command_line_arguments = sys.argv
         self.token = command_line_arguments[1] if len(sys.argv) > 1 else 'EAASp3DPmNo8BAJANUw4ZCQYxN3ZCgMZA7juy8T2DEQVIZCZC4jCzTesTrXddbV9puNVAwnkyibbSrBxCOTloPZAz7JXHFzOM2WgPPXL38aparrI7k8EgAFZCDdVSSZAflYL7aghaVOF3h4FewoHg8VvrK9SYXAQmdUmTVh6LFLZA8hJFTmOuldffuZB6R4Tpi1g28ZD'
-		self.page_id = command_line_arguments[2] if len(sys.argv) > 1 else ''
-        self.client_id = "1312663135467151"
-        self.client_secret = "d755242eafec2782d22b5dcb42d3a794"
+        self.page_id = command_line_arguments[2] if len(sys.argv) > 1 else '1042724125855991'
+        self.client_id = "1312663135467151'
+	self.client_secret = "d755242eafec2782d22b5dcb42d3a794"
 
     def curl(self, method, url, data):
 
@@ -87,7 +87,11 @@ class ImportPostTool:
         api_url = 'https://graph.facebook.com/v6.0/oauth/access_token?grant_type=fb_exchange_token&client_id={0}&client_secret={1}&fb_exchange_token={2}'.format(self.client_id, self.client_secret, self.token)
         result = self.curl("GET", api_url, None)
         access_token = result['access_token']
-		api_url = 'https://graph.facebook.com/v6.0/{0}/accounts?access_token={1}'.format(self.page_id, access_token)
+
+	api_url = 'https://graph.facebook.com/v6.0/{0}/accounts?access_token={1}'.format(self.page_id, access_token)
+	result = self.curl("GET", api_url, None)
+        page_access_token = result['access_token']
+        print(page_access_token)
     
         
             
