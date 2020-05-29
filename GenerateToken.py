@@ -3,7 +3,7 @@
 
 """
 #-----------------------------------------------------------------------------
-# Name:        
+# Name:
 #
 # Purpose:
 #
@@ -33,13 +33,14 @@ import sys, os, json, requests, pycurl, certifi
 from datetime import datetime
 from urllib.parse import urlencode
 
-class ImportPostTool:
+class GenerateTool:
     def __init__(self):
         command_line_arguments = sys.argv
-        self.token = command_line_arguments[1] if len(sys.argv) > 1 else 'EAASp3DPmNo8BAJANUw4ZCQYxN3ZCgMZA7juy8T2DEQVIZCZC4jCzTesTrXddbV9puNVAwnkyibbSrBxCOTloPZAz7JXHFzOM2WgPPXL38aparrI7k8EgAFZCDdVSSZAflYL7aghaVOF3h4FewoHg8VvrK9SYXAQmdUmTVh6LFLZA8hJFTmOuldffuZB6R4Tpi1g28ZD'
+        self.token = command_line_arguments[1] if len(sys.argv) > 1 else 'EAASp3DPmNo8BAF0OFRVz7LmhnVkZCplUox8PWrStUEaTfykAM6EfCoej7jIeZAFKVrGGoz0ZBHGBZAfv1zgHalBGuajI04zz1mZBwyWLU6PPp0d7FwvtM4MrrCH7fYzTPVvQ8g7boz8pE8nu5uTS0bM3gnTObQ2aTbidd0GaeG8nCPfDxKL7aMUFcCcJ9MRUZD'
         self.page_id = command_line_arguments[2] if len(sys.argv) > 1 else '1042724125855991'
-        self.client_id = "1312663135467151'
-	self.client_secret = "d755242eafec2782d22b5dcb42d3a794"
+        self.user_id = '2362323090677387' #Minh Hung
+        self.client_id = "1312663135467151"
+        self.client_secret = "d755242eafec2782d22b5dcb42d3a794"
 
     def curl(self, method, url, data):
 
@@ -49,9 +50,9 @@ class ImportPostTool:
 
         #print('Post data : ')
         #print(data)
-        
+
         postfields = urlencode(data) if data != None else None
-        
+
         if method == "POST":
 
             crl.setopt(crl.URL, url)
@@ -78,9 +79,9 @@ class ImportPostTool:
         crl.close()
 
         result = json.loads(result)
-        print('Response info : ')
-        print(result)
-        
+        #print('Response info : ')
+        #print(result)
+
         return result
 
     def generate_token(self):
@@ -88,14 +89,17 @@ class ImportPostTool:
         result = self.curl("GET", api_url, None)
         access_token = result['access_token']
 
-	api_url = 'https://graph.facebook.com/v6.0/{0}/accounts?access_token={1}'.format(self.page_id, access_token)
-	result = self.curl("GET", api_url, None)
-        page_access_token = result['access_token']
-        print(page_access_token)
-    
-        
-            
+        api_url = 'https://graph.facebook.com/v6.0/{0}/accounts?access_token={1}'.format(self.user_id, access_token)
+        result = self.curl("GET", api_url, None)
+        data = result['data']
+        #print(data[0])
+        for item in data:
+            if item['id'] == self.page_id:
+                print(item['id'])
+                print(item['name'])
+                print(item['access_token'])
+
 #Start application
-tool = ImportPostTool()
+tool = GenerateTool()
 tool.generate_token()
 exit()
