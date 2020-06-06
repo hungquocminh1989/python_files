@@ -36,8 +36,8 @@ from urllib.parse import urlencode
 class GenerateTool:
     def __init__(self):
         command_line_arguments = sys.argv
-        self.token = command_line_arguments[1] if len(sys.argv) > 1 else 'EAASp3DPmNo8BALsmMDpATI7iHCZBQL4EZCXXnCzXvlTVXs0mufd7kouJdvmUAvvMPHs2Pit7NXykO2W40lz0AX7Ob83Xf0Hx2NbTzKz2KFFYYfriWjn1oQyYsrLuLUfBa6ZB2R7tOClQPxYYTdHlelJ491ZB7oOZBYAfWWIOAEbUWUuVFpvoZA0wpWUysktAEZD'
-        self.page_id = command_line_arguments[2] if len(sys.argv) > 1 else '1225021487526405'
+        self.token = command_line_arguments[1] if len(sys.argv) > 1 else 'EAASp3DPmNo8BAF76m9lFx4W7plNbFa4vAZCOVzIbIBFNhtvHukvrSsRjSZA2aUYM83SgZAvQH2HaZB1dlvGyo2AMZCdMtQpmxnWHUPlg2i7U5njMUZAV3cp5xKtZBqt4wxPWgXZCRZC5XPxAtIbpKw4jDZCfB3PpZCu2K3En4eCVo7XOvm9NQZBTytvARK4XhxlpunYZD'
+        self.page_id = command_line_arguments[2] if len(sys.argv) > 1 else None #'1225021487526405'
         self.user_id = '2362323090677387' #Minh Hung
         self.client_id = "1312663135467151"
         self.client_secret = "d755242eafec2782d22b5dcb42d3a794"
@@ -94,7 +94,7 @@ class GenerateTool:
         data = result['data']
         #print(data[0])
         for item in data:
-            if item['id'] == self.page_id:
+            if item['id'] == self.page_id or self.page_id == None:
                 print(item['id'])
                 print(item['name'])
                 print(item['access_token'])
