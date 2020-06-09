@@ -37,7 +37,7 @@ class GenerateTool:
     def __init__(self):
         command_line_arguments = sys.argv
         self.token = command_line_arguments[1] if len(sys.argv) > 1 else 'EAASp3DPmNo8BAF76m9lFx4W7plNbFa4vAZCOVzIbIBFNhtvHukvrSsRjSZA2aUYM83SgZAvQH2HaZB1dlvGyo2AMZCdMtQpmxnWHUPlg2i7U5njMUZAV3cp5xKtZBqt4wxPWgXZCRZC5XPxAtIbpKw4jDZCfB3PpZCu2K3En4eCVo7XOvm9NQZBTytvARK4XhxlpunYZD'
-        self.page_id = command_line_arguments[2] if len(sys.argv) > 1 else None #'1225021487526405'
+        self.page_ids_string = command_line_arguments[2] if len(sys.argv) > 1 else None #'1225021487526405'
         self.user_id = '2362323090677387' #Minh Hung
         self.client_id = "1312663135467151"
         self.client_secret = "d755242eafec2782d22b5dcb42d3a794"
@@ -93,11 +93,10 @@ class GenerateTool:
         result = self.curl("GET", api_url, None)
         data = result['data']
         #print(data[0])
+        page_id_arr = selft.page_ids_string.split(" ")
         for item in data:
-            if item['id'] == self.page_id or self.page_id == None:
-                print(item['id'])
-                print(item['name'])
-                print(item['access_token'])
+            if item['id'] in page_id_arr or self.page_ids_string == None:
+                print(item['id']  + ' - ' + item['name'] + ' - ' + item['access_token'])
 
 #Start application
 tool = GenerateTool()
