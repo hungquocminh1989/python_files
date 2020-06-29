@@ -37,7 +37,7 @@ from pandas import *
 
 #Import lib common
 sys.path.append('lib')
-import curllib
+import common
 
 class ImportPostTool:
     def __init__(self):
@@ -48,7 +48,7 @@ class ImportPostTool:
             api_key = "826583412123261", 
             api_secret = "Sa3_O7wQUNvwnQELh8U313D5IvQ" 
         )
-        self.curllib = curllib.Shared()
+        self.shared = common.Shared()
 
     def upload_to_cloudinary(self, attachments):
         cloudinary_images = {}
@@ -96,7 +96,7 @@ class ImportPostTool:
             "access_token" : token,
         }
 
-        result = self.curllib.curl("GET", api_url, data)
+        result = self.shared.curl("GET", api_url, data)
         
         return result
 
@@ -105,7 +105,7 @@ class ImportPostTool:
         data = {
             "access_token" : token,
         }
-        result = self.curllib.curl("DELETE", api_url, data)
+        result = self.shared.curl("DELETE", api_url, data)
 
         return result
 
@@ -116,7 +116,7 @@ class ImportPostTool:
             'fields' : 'created_time,message,attachments,permalink_url',
             'limit' : limit,
         }
-        result = self.curllib.curl("GET", api_url, data)
+        result = self.shared.curl("GET", api_url, data)
 
         return result
         
@@ -130,18 +130,18 @@ class ImportPostTool:
             "access_token" : token,
         }
         
-        media_fbid = self.curllib.upload_multi_photo(attachments, token)
+        media_fbid = self.shared.upload_multi_photo(attachments, token)
         
         if len(media_fbid) > 0:
 
             #Merge data
             data = {**data, **media_fbid}
 
-            result = self.curllib.curl("POST", api_url, data)
+            result = self.shared.curl("POST", api_url, data)
             
             return result
         else:
-            result = self.curllib.curl("POST", api_url, data)
+            result = self.shared.curl("POST", api_url, data)
             
             return result
             
@@ -160,7 +160,7 @@ class ImportPostTool:
         # [url] 
         # [published] = false
         api_url = 'https://graph.facebook.com/v2.10/me/photos'
-        result = self.curllib.curl("POST", api_url, data)
+        result = self.shared.curl("POST", api_url, data)
 
         return result
 

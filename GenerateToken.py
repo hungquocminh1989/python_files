@@ -35,7 +35,7 @@ from urllib.parse import urlencode
 
 #Import lib common
 sys.path.append('lib')
-import curllib
+import common
 
 class GenerateTool:
     def __init__(self):
@@ -45,15 +45,15 @@ class GenerateTool:
         self.user_id = '2362323090677387' #Minh Hung
         self.client_id = "1312663135467151"
         self.client_secret = "d755242eafec2782d22b5dcb42d3a794"
-        self.curllib = curllib.Shared()
+        self.shared = common.Shared()
 
     def generate_token(self):
         api_url = 'https://graph.facebook.com/v6.0/oauth/access_token?grant_type=fb_exchange_token&client_id={0}&client_secret={1}&fb_exchange_token={2}'.format(self.client_id, self.client_secret, self.token)
-        result = self.curllib.curl("GET", api_url, None)
+        result = self.shared.curl("GET", api_url, None)
         access_token = result['access_token']
 
         api_url = 'https://graph.facebook.com/v6.0/{0}/accounts?access_token={1}'.format(self.user_id, access_token)
-        result = self.curllib.curl("GET", api_url, None)
+        result = self.shared.curl("GET", api_url, None)
         data = result['data']
         #print(data[0])
         page_id_arr = selft.page_ids_string.split(" ")

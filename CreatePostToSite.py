@@ -37,7 +37,7 @@ from woocommerce import API
 
 #Import lib common
 sys.path.append('lib')
-import curllib
+import common
 
 class ImportPostTool:
     def __init__(self):
@@ -58,7 +58,7 @@ class ImportPostTool:
         self.category_men_name = 'Đồng Hồ Nam' #Danh mục đồng hồ nam
         self.category_women_name = 'Đông Hồ Nữ' #Danh mục đồng hồ nữ
         self.categogry_uncategorized = 'Uncategorized' #Danh mục không xác định
-        self.curllib = curllib.Shared()
+        self.shared = curllib.Shared()
 
     def get_token_info_api(self, token):
 
@@ -69,7 +69,7 @@ class ImportPostTool:
             'fields' : 'id,name',
         }
 
-        result = self.curllib.curl("GET", api_url, data)
+        result = self.shared.curl("GET", api_url, data)
         
         return result
 
@@ -81,7 +81,7 @@ class ImportPostTool:
             'fields' : 'created_time,message,attachments,permalink_url',
             'limit' : limit,
         }
-        result = self.curllib.curl("GET", api_url, data)
+        result = self.shared.curl("GET", api_url, data)
 
         return result
 
