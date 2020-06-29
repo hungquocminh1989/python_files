@@ -33,6 +33,10 @@ import sys, os, json, requests, pycurl, certifi
 from datetime import datetime
 from urllib.parse import urlencode
 
+#Import lib common
+sys.path.append('lib')
+import curllib
+
 class GenerateTool:
     def __init__(self):
         command_line_arguments = sys.argv
@@ -41,56 +45,15 @@ class GenerateTool:
         self.user_id = '2362323090677387' #Minh Hung
         self.client_id = "1312663135467151"
         self.client_secret = "d755242eafec2782d22b5dcb42d3a794"
-
-    def curl(self, method, url, data):
-
-        crl = pycurl.Curl()
-
-        crl.setopt(crl.CAINFO, certifi.where())
-
-        #print('Post data : ')
-        #print(data)
-
-        postfields = urlencode(data) if data != None else None
-
-        if method == "POST":
-
-            crl.setopt(crl.URL, url)
-
-            crl.setopt(crl.POSTFIELDS, postfields)
-
-        elif method == "DELETE":
-
-            crl.setopt(crl.URL, url)
-
-            crl.setopt(crl.POSTFIELDS, postfields)
-
-            crl.setopt(crl.CUSTOMREQUEST, 'DELETE')
-
-        elif method == "GET":
-
-            if postfields != None:
-                crl.setopt(crl.URL, url + "?" + postfields)
-            else:
-                crl.setopt(crl.URL, url)
-
-        result = crl.perform_rs()
-
-        crl.close()
-
-        result = json.loads(result)
-        #print('Response info : ')
-        #print(result)
-
-        return result
+        self.curllib = curllib.Shared()
 
     def generate_token(self):
         api_url = 'https://graph.facebook.com/v6.0/oauth/access_token?grant_type=fb_exchange_token&client_id={0}&client_secret={1}&fb_exchange_token={2}'.format(self.client_id, self.client_secret, self.token)
-        result = self.curl("GET", api_url, None)
+        result = self.curllib.curl("GET", api_url, None)
         access_token = result['access_token']
 
         api_url = 'https://graph.facebook.com/v6.0/{0}/accounts?access_token={1}'.format(self.user_id, access_token)
-        result = self.curl("GET", api_url, None)
+        result = self.curllib.curl("GET", api_url, None)
         data = result['data']
         #print(data[0])
         page_id_arr = selft.page_ids_string.split(" ")
