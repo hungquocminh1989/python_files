@@ -167,7 +167,7 @@ class VultrInstance:
             #'SNAPSHOTID' : 'f235ea527177d',
 
             #https://api.vultr.com/v1/startupscript/list
-            'SCRIPTID' : '729601' #Install Python 3.8
+            #'SCRIPTID' : '729601' #Install Python 3.8
         }
 
         #https://www.vultr.com/api/#server_create
