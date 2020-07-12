@@ -140,6 +140,65 @@ class Remoting:
 
         return True
 
+import subprocess, requests
+import winreg
+class Proxy:
+    def __init__(self, hostname, password, port="22", username="root"):
+        self.connection = subprocess.Popen(["lib\\ssh_tool\\ConnectSSH.exe", hostname, port, username, password])
+        print(self.connection)
+        self.internet_settings = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r'Software\Microsoft\Windows\CurrentVersion\Internet Settings',
+                0,
+                winreg.KEY_ALL_ACCESS
+        )
+
+    def start(self):
+        retry_status = True
+        retry_time = 0
+        while retry_status:
+            retry_time += 1
+            try:
+                print("Retry connection : {0} ...".format(retry_time))
+                retry_status = False
+                headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0'}
+                proxies = {
+                    'http': "socks5://127.0.0.1:1080",
+                    'https': "socks5://127.0.0.1:1080"
+                }
+                r = requests.get('https://api.ipify.org/',proxies=proxies, headers=headers).content
+                print(r)
+            except:
+                retry_status = True
+
+        self.apply_proxy_setting()
+        print('Proxy connected.')
+
+    def stop(self):
+        self.connection.kill()
+        self.remove_proxy_setting()
+        print('Proxy disconnected.')
+
+    
+    def apply_proxy_setting(self):
+        self.set_key('ProxyEnable', 1)
+        #self.set_key('ProxyOverride', u'*.local;<local>')  # Bypass the proxy for localhost
+        self.set_key('ProxyServer', u'socks=127.0.0.1:1080')
+        self.restart_explorer()
+
+    def restart_explorer(self):
+        run = subprocess.Popen(["taskkill", "/f", "/im", "explorer.exe"])
+        run.wait()
+        run = subprocess.Popen(["C:\\Windows\\explorer.exe"])
+        #run.wait()
+
+    def set_key(self, name, value):
+        _, reg_type = winreg.QueryValueEx(self.internet_settings, name)
+        winreg.SetValueEx(self.internet_settings, name, 0, reg_type, value)
+
+    def remove_proxy_setting(self):
+        self.set_key('ProxyEnable', 0)
+        self.restart_explorer()
     
 
 class VultrInstance:
@@ -178,11 +237,21 @@ class VultrInstance:
 
     def get_server_info(self, server_id = None):
 
-        #https://www.vultr.com/api/#server_server_list
-        result = self.shared.curl('GET', 'https://api.vultr.com/v1/server/list', None, self.headers)
+        retry_status = True
+        retry_time = 0
+        while retry_status:
+            retry_time += 1
+            print("Retry get server info : {0} ...".format(retry_time))
+            
+            #https://www.vultr.com/api/#server_server_list
+            result = self.shared.curl('GET', 'https://api.vultr.com/v1/server/list', None, self.headers)
 
-        if server_id != None:
-            result = result[server_id]
+            if server_id != None:
+                result = result[server_id]
+                if result['default_password'] != 'not supported' and result['main_ip'] != '0.0.0.0':
+                    retry_status = False
+            else:
+                retry_status = False
 
         print(result)
 

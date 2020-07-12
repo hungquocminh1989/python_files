@@ -41,16 +41,22 @@ class autotest:
     def __init__(self):
         self.shared = common.Shared()
         self.vultr = common.VultrInstance('JMNOZZ3QAUPFEVSQXE37QOTRLSYXXN5AUNGA')
-        self.remoting = common.Remoting("149.28.147.3", 15, "root", "pA3?%tjGHy7ttUnj")
+        #self.remoting = common.Remoting("149.28.147.3", 15, "root", "pA3?%tjGHy7ttUnj")
     def run(self):
-        #r = self.vultr.create_server()
+        r = self.vultr.create_server()
+        info = self.vultr.get_server_info(r['SUBID'])
+        #print(info)
+        proxy = common.Proxy(hostname=info['main_ip'], password=info["default_password"])
+        proxy.start()
         #self.vultr.destroy_server('38784580')
         #self.vultr.get_startupscript_list()
+        '''
         commands = [
-            #'cd /home/minh/public_html',
+            'cd /home/minh/public_html',
             'ls',
             'php -v'
         ]
+        '''
         #self.remoting.upload_file('credentials.json', "/home/minh/public_html")
         #self.remoting.upload_folder(os.getcwd() + '\\selenium' ,"/home/minh/public_html")
         #print(os.getcwd())

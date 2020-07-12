@@ -22,7 +22,7 @@
 #Import lib
 from selenium import webdriver
 
-browser = webdriver.Firefox(executable_path='X:/01-WIN10-TMP/Desktop/python_files/selenium/webdriver/firefox.exe')
+browser = webdriver.Chrome(executable_path='webdriver/chromedriver.exe')
 browser.get('http://seleniumhq.org/')
 
 exit()

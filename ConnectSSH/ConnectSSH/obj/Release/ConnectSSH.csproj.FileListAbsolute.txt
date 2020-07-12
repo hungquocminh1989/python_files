@@ -1,0 +1,14 @@
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Release\ConnectSSH.exe.config
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Release\ConnectSSH.exe
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Release\ConnectSSH.pdb
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Release\Renci.SshNet.dll
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Release\Renci.SshNet.xml
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\obj\Release\ConnectSSH.exe
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\obj\Release\ConnectSSH.pdb
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Release\ConnectSSH.exe.config
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\obj\Release\ConnectSSH.exe
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\obj\Release\ConnectSSH.pdb
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Release\ConnectSSH.exe
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Release\ConnectSSH.pdb
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Release\Renci.SshNet.dll
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Release\Renci.SshNet.xml

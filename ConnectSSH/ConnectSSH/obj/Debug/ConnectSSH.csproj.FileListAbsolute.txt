@@ -1,0 +1,16 @@
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Debug\ConnectSSH.exe.config
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Debug\ConnectSSH.exe
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Debug\ConnectSSH.pdb
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Debug\Renci.SshNet.dll
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\bin\Debug\Renci.SshNet.xml
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\obj\Debug\ConnectSSH.exe
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\obj\Debug\ConnectSSH.pdb
+c:\Users\QuocMinh\Documents\Visual Studio 2015\Projects\ConnectSSH\ConnectSSH\obj\Debug\ConnectSSH.csprojResolveAssemblyReference.cache
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Debug\ConnectSSH.exe.config
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\obj\Debug\ConnectSSH.exe
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\obj\Debug\ConnectSSH.pdb
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Debug\ConnectSSH.exe
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Debug\ConnectSSH.pdb
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Debug\Renci.SshNet.dll
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\bin\Debug\Renci.SshNet.xml
+C:\Users\QuocMinh\Desktop\python_files\ConnectSSH\ConnectSSH\obj\Debug\ConnectSSH.csprojResolveAssemblyReference.cache
