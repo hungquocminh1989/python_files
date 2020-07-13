@@ -171,12 +171,12 @@ class Proxy:
             except:
                 retry_status = True
 
-        self.apply_proxy_setting()
+        #self.apply_proxy_setting()
         print('Proxy connected.')
 
     def stop(self):
         self.connection.kill()
-        self.remove_proxy_setting()
+        #self.remove_proxy_setting()
         print('Proxy disconnected.')
 
     
@@ -240,11 +240,14 @@ class VultrInstance:
         retry_status = True
         retry_time = 0
         while retry_status:
-            retry_time += 1
-            print("Retry get server info : {0} ...".format(retry_time))
+            
+            if retry_time > 0:
+                print("Retry get server info : {0} ...".format(retry_time))
             
             #https://www.vultr.com/api/#server_server_list
             result = self.shared.curl('GET', 'https://api.vultr.com/v1/server/list', None, self.headers)
+            
+            retry_time += 1
 
             if server_id != None:
                 result = result[server_id]
