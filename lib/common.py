@@ -157,10 +157,14 @@ class Proxy:
         retry_status = True
         retry_time = 0
         while retry_status:
-            retry_time += 1
+            
             try:
-                print("Retry connection : {0} ...".format(retry_time))
+                
+                if retry_time > 0:
+                    print("Retry connection : {0} ...".format(retry_time))
+                    
                 retry_status = False
+                
                 headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0'}
                 proxies = {
                     'http': "socks5://127.0.0.1:1080",
@@ -168,6 +172,9 @@ class Proxy:
                 }
                 r = requests.get('https://api.ipify.org/',proxies=proxies, headers=headers).content
                 print(r)
+                
+                retry_time += 1
+                
             except:
                 retry_status = True
 
