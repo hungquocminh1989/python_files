@@ -5,7 +5,7 @@ import paramiko
 myHostname = "149.28.147.3"
 myPort = 15
 myUsername = "root"
-myPassword = "pA3?%tjGHy7ttUnj"
+myPassword = ""
 myCnopts = pysftp.CnOpts(knownhosts='known_hosts')
 myCnopts.hostkeys = None
 

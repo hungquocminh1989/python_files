@@ -13,7 +13,7 @@ localPorts  = [
 server = sshtunnel.SSHTunnelForwarder(
     ('149.28.147.3', 15),
     ssh_username="root",
-    ssh_password="pA3?%tjGHy7ttUnj",
+    ssh_password="",
     #ssh_config_file="/etc/ssh/ssh_config",
     remote_bind_addresses=tunnels ,
     local_bind_addresses=localPorts ,

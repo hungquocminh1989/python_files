@@ -40,8 +40,8 @@ import common
 class autotest:
     def __init__(self):
         self.shared = common.Shared()
-        self.vultr = common.VultrInstance('JMNOZZ3QAUPFEVSQXE37QOTRLSYXXN5AUNGA')
-        #self.remoting = common.Remoting("149.28.147.3", 15, "root", "pA3?%tjGHy7ttUnj")
+        self.vultr = common.VultrInstance('')
+        #self.remoting = common.Remoting("149.28.147.3", 15, "root", "")
     def run(self):
         r = self.vultr.create_server()
         info = self.vultr.get_server_info(r['SUBID'])
