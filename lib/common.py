@@ -308,6 +308,26 @@ class VultrInstance:
         result = self.shared.curl('GET', 'https://api.vultr.com/v1/startupscript/list', None, self.headers)
         print(result)
         return result
+
+from selenium import webdriver
+class SeleniumInstance:
+
+    def __init__(self):
+        self.webdriver = webdriver.Chrome(executable_path='selenium_driver/chromedriver.exe')
+
+    def goto_url(self, url):
+        self.webdriver.get(url)
+
+    def set_input_field(self):
+        return None
+
+    def find_by_xpath(self, xpath):
+        element = self.webdriver.find_element_by_xpath(xpath)
+        
+        return element
+
+    def close(self):
+        self.webdriver.close()
         
 
         
