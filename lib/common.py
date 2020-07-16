@@ -310,24 +310,67 @@ class VultrInstance:
         return result
 
 from selenium import webdriver
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.chrome.options import Options 
 class SeleniumInstance:
 
     def __init__(self):
-        self.webdriver = webdriver.Chrome(executable_path='selenium_driver/chromedriver.exe')
-
-    def goto_url(self, url):
-        self.webdriver.get(url)
-
-    def set_input_field(self):
-        return None
-
-    def find_by_xpath(self, xpath):
-        element = self.webdriver.find_element_by_xpath(xpath)
         
-        return element
+        chrome_options = Options()  
+        #chrome_options.add_argument("--headless")
+        chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']); # Hide display "Chrome is being controlled by automated test software"
+        #chrome_options.add_extension('lib\\selenium\\chrome\\extensions\\swapmycookies.crx')
+        
+        self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options)
+
+    def set_redirect(self, url, seconds=1):
+        self.webdriver.get(url)
+        self.webdriver.implicitly_wait(seconds) # seconds
+
+    def set_input_text(self, xpath, value = ''):
+        el = self._find_by_xpath(xpath)
+        el.send_keys(value)
+        
+        return el
+
+    def set_input_combobox(self, xpath, value='', text=''):
+        el = self._find_by_xpath(xpath)
+        select = Select(el)
+
+        if value != '':
+            select.select_by_value(value)
+        elif text != '':
+            select.select_by_visible_text(text)
+
+        return el
+
+    def set_input_click(self, xpath):
+        el = self.get_control(xpath)
+        el.click()
+        
+        return el
+
+    def get_control(self, xpath):
+        el = self._find_by_xpath(xpath)
+
+        return el
+
+    def _find_by_xpath(self, xpath):
+
+        el = None
+        try:
+            el = self.webdriver.find_element_by_xpath(xpath)
+            
+        except:
+            print('XPATH : {0} Not found.'.format(xpath))
+            self.close()
+            sys.exit()
+
+        return el
 
     def close(self):
         self.webdriver.close()
+        self.webdriver.quit()
         
 
         

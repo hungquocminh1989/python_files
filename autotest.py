@@ -29,7 +29,7 @@
 """
 
 #Import packages
-import sys, os, json
+import sys, os, json, time
 from datetime import datetime
 from urllib.parse import urlencode
 
@@ -42,24 +42,21 @@ class autotest:
         self.shared = common.Shared()
         self.vultr = common.VultrInstance('')
         #self.remoting = common.Remoting("149.28.147.3", 15, "root", "")
+        self.browser = common.SeleniumInstance()
     def run(self):
-        r = self.vultr.create_server()
-        info = self.vultr.get_server_info(r['SUBID'])
+        #r = self.vultr.create_server()
+        #info = self.vultr.get_server_info(r['SUBID'])
         #print(info)
-        proxy = common.Proxy(hostname=info['main_ip'], password=info["default_password"])
-        proxy.start()
+        #proxy = common.Proxy(hostname=info['main_ip'], password=info["default_password"])
+        #proxy.start()
         #self.vultr.destroy_server('38784580')
         #self.vultr.get_startupscript_list()
-        '''
-        commands = [
-            'cd /home/minh/public_html',
-            'ls',
-            'php -v'
-        ]
-        '''
-        #self.remoting.upload_file('credentials.json', "/home/minh/public_html")
-        #self.remoting.upload_folder(os.getcwd() + '\\selenium' ,"/home/minh/public_html")
-        #print(os.getcwd())
+        self.browser.set_redirect('https://getbootstrap.com/docs/4.3/components/forms/#auto-sizing')
+        #self.browser.set_input_text('/html/body/main/form/dl[1]/dd/input', 'lixiladmin')
+        #self.browser.set_input_text('/html/body/main/form/dl[2]/dd/input', 'MSBuLBcQdGKL')
+        #self.browser.set_click('/html/body/main/form/input[2]')
+        #time.sleep(5000)
+        #self.browser.set_input_click('/html/body/div/div/main/div[48]/form/div/div[1]/select/option[3222222]')
         
 
 obj = autotest()
