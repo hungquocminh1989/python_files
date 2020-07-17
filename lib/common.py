@@ -94,11 +94,11 @@ from base64 import decodebytes
 
 class Remoting:
 
-    def __init__(self, Hostname, Port, Username, Password):
-        self.myHostname = Hostname
-        self.myPort = Port
-        self.myUsername = Username
-        self.myPassword = Password
+    def __init__(self, hostname, port, username, password):
+        self.myHostname = hostname
+        self.myPort = port
+        self.myUsername = username
+        self.myPassword = password
         self.myCnopts = pysftp.CnOpts(knownhosts='known_hosts')
         self.myCnopts.hostkeys = None
 
@@ -142,7 +142,7 @@ class Remoting:
 
 import subprocess, requests
 import winreg
-class Proxy:
+class ProxyX:
     def __init__(self, hostname, password, port="22", username="root"):
         self.connection = subprocess.Popen(["lib\\ssh_tool\\ConnectSSH.exe", hostname, port, username, password])
         print(self.connection)
@@ -311,15 +311,22 @@ class VultrInstance:
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.chrome.options import Options 
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.proxy import Proxy, ProxyType
+import pickle
 class SeleniumInstance:
 
     def __init__(self):
         
         chrome_options = Options()  
         #chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-infobars")
         chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']); # Hide display "Chrome is being controlled by automated test software"
         #chrome_options.add_extension('lib\\selenium\\chrome\\extensions\\swapmycookies.crx')
+
+        proxy_setting = "127.0.0.1:1080" # IP:PORT or HOST:PORT
+
+        chrome_options.add_argument('--proxy-server=%s' % proxy_setting)
         
         self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options)
 
@@ -367,6 +374,19 @@ class SeleniumInstance:
             sys.exit()
 
         return el
+    '''
+    def save_cookies(self, filepath):
+        pickle.dump(self.webdriver.get_cookies(), open(filepath,"wb"))#file.pkl
+
+        return True
+
+    def load_cookies(self, filepath):
+        cookies = pickle.load(open(filepath, "rb"))#file.pkl
+        for cookie in cookies:
+            self.webdriver.add_cookie(cookie)
+
+        return True
+    '''
 
     def close(self):
         self.webdriver.close()

@@ -40,18 +40,20 @@ import common
 class autotest:
     def __init__(self):
         self.shared = common.Shared()
-        self.vultr = common.VultrInstance('')
+        self.vultr = common.VultrInstance('QTHEFETRVWWU7MTCVLSBHZL5E2ME6R4FX3NQ')
         #self.remoting = common.Remoting("149.28.147.3", 15, "root", "")
-        self.browser = common.SeleniumInstance()
+        
     def run(self):
         #r = self.vultr.create_server()
-        #info = self.vultr.get_server_info(r['SUBID'])
+        info = self.vultr.get_server_info('27676263')
         #print(info)
-        #proxy = common.Proxy(hostname=info['main_ip'], password=info["default_password"])
-        #proxy.start()
+        proxy = common.ProxyX(hostname=info['main_ip'], password=info["default_password"])
+        proxy.start()
         #self.vultr.destroy_server('38784580')
         #self.vultr.get_startupscript_list()
-        self.browser.set_redirect('https://getbootstrap.com/docs/4.3/components/forms/#auto-sizing')
+        #self.browser = common.SeleniumInstance()
+        #self.browser.set_redirect('https://api.ipify.org/')
+        #self.browser._save_cookies()
         #self.browser.set_input_text('/html/body/main/form/dl[1]/dd/input', 'lixiladmin')
         #self.browser.set_input_text('/html/body/main/form/dl[2]/dd/input', 'MSBuLBcQdGKL')
         #self.browser.set_click('/html/body/main/form/input[2]')
