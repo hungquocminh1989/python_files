@@ -212,6 +212,11 @@ class ProxyX:
 class VultrInstance:
     
     def __init__(self, api_key):
+
+        if api_key == '':
+            print('API-Key missing.')
+            sys.exit()
+        
         self.shared = Shared()
         self.headers = ['API-Key:{0}'.format(api_key)]
 
@@ -315,6 +320,8 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.touch_actions import TouchActions
 import pickle
 class SeleniumInstance:
 
@@ -356,6 +363,13 @@ class SeleniumInstance:
         elif text != '':
             select.select_by_visible_text(text)
 
+        return el
+
+    def set_input_tap(self, xpath):
+        el = self.get_control(xpath)
+        touchactions = TouchActions(self.webdriver)
+        touchactions.double_tap(el)
+        
         return el
 
     def set_input_click(self, xpath):

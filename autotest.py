@@ -53,11 +53,12 @@ class autotest:
         #self.vultr.get_startupscript_list()
         self.browser = common.SeleniumInstance()
         self.browser.set_redirect('https://api.ipify.org/')
-        self.browser.set_redirect('https://m.facebook.com/reg')
+        self.browser.set_redirect('https://m.facebook.com/reg', 5)
         #self.browser._save_cookies()
         self.browser.set_input_text('//*[@id="firstname_input"]', 'Nguyen')#Firstname
         el = self.browser.set_input_text('//*[@id="lastname_input"]', 'Dung')#Lastname
-        self.browser.enter(el)#Next
+        #self.browser.enter(el)#Next
+        self.browser.set_input_click('//*[@id="mobile-reg-form"]/div[8]/div[2]/button[1]')#Next
         
         self.browser.set_input_combobox('//*[@id="month"]', value='3')#month
         self.browser.set_input_combobox('//*[@id="day"]', value='15')#day
@@ -69,7 +70,7 @@ class autotest:
         self.browser.set_input_text('//*[@id="contactpoint_step_input"]', 'oukgjg@gmail.com')#Mail
         self.browser.set_input_click('//*[@id="mobile-reg-form"]/div[8]/div[2]/button[1]')#Next
 
-        self.browser.set_click('//*[@id="Female"]')#Female
+        self.browser.set_input_click('//*[@id="Female"]')#Female
         self.browser.set_input_click('//*[@id="mobile-reg-form"]/div[8]/div[2]/button[1]')#Next
 
         self.browser.set_input_text('//*[@id="password_step_input"]"]', 'aocufkeh123')#Password
