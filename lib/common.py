@@ -173,9 +173,10 @@ class ProxyX:
                 r = requests.get('https://api.ipify.org/',proxies=proxies, headers=headers).content
                 print(r)
                 
-                retry_time += 1
+                
                 
             except:
+                retry_time += 1
                 retry_status = True
 
         #self.apply_proxy_setting()
@@ -313,6 +314,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.proxy import Proxy, ProxyType
+from selenium.webdriver.common.keys import Keys
 import pickle
 class SeleniumInstance:
 
@@ -320,15 +322,20 @@ class SeleniumInstance:
         
         chrome_options = Options()  
         #chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-infobars")
-        chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']); # Hide display "Chrome is being controlled by automated test software"
+        #chrome_options.add_argument("--disable-infobars")
+        #chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']); # Hide display "Chrome is being controlled by automated test software"
         #chrome_options.add_extension('lib\\selenium\\chrome\\extensions\\swapmycookies.crx')
 
-        proxy_setting = "127.0.0.1:1080" # IP:PORT or HOST:PORT
+        prox = Proxy()
+        prox.proxy_type = ProxyType.MANUAL
+        prox.http_proxy = "socks5://127.0.0.1:1080"
+        #prox.socks_proxy = ""
+        prox.ssl_proxy = "socks5://127.0.0.1:1080"
 
-        chrome_options.add_argument('--proxy-server=%s' % proxy_setting)
+        capabilities = webdriver.DesiredCapabilities.CHROME
+        prox.add_to_capabilities(capabilities)
         
-        self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options)
+        self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options, desired_capabilities=capabilities)
 
     def set_redirect(self, url, seconds=1):
         self.webdriver.get(url)
@@ -374,6 +381,12 @@ class SeleniumInstance:
             sys.exit()
 
         return el
+
+    def enter(self, element):
+        element.send_keys(Keys.RETURN)
+
+        return element
+    
     '''
     def save_cookies(self, filepath):
         pickle.dump(self.webdriver.get_cookies(), open(filepath,"wb"))#file.pkl
