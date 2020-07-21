@@ -325,7 +325,7 @@ from selenium.webdriver.common.touch_actions import TouchActions
 import pickle
 class SeleniumInstance:
 
-    def __init__(self):
+    def __init__(self, proxy_ip='127.0.0.1', proxy_port='1080'):
         
         chrome_options = Options()  
         #chrome_options.add_argument("--headless")
@@ -335,9 +335,9 @@ class SeleniumInstance:
 
         prox = Proxy()
         prox.proxy_type = ProxyType.MANUAL
-        prox.http_proxy = "socks5://127.0.0.1:1080"
+        prox.http_proxy = "socks5://{0}:{1}".format(proxy_ip, proxy_port)
         #prox.socks_proxy = ""
-        prox.ssl_proxy = "socks5://127.0.0.1:1080"
+        prox.ssl_proxy = "socks5://{0}:{1}".format(proxy_ip, proxy_port)
 
         capabilities = webdriver.DesiredCapabilities.CHROME
         prox.add_to_capabilities(capabilities)
@@ -346,6 +346,9 @@ class SeleniumInstance:
 
     def set_redirect(self, url, seconds=1):
         self.webdriver.get(url)
+        self.set_implicitly_wait(seconds) # seconds
+
+    def set_implicitly_wait(self, seconds=1):
         self.webdriver.implicitly_wait(seconds) # seconds
 
     def set_input_text(self, xpath, value = ''):
@@ -386,17 +389,25 @@ class SeleniumInstance:
     def _find_by_xpath(self, xpath):
 
         el = None
-        try:
-            el = self.webdriver.find_element_by_xpath(xpath)
-            
-        except:
-            print('XPATH : {0} Not found.'.format(xpath))
-            self.close()
-            sys.exit()
+        retry_status = True
+        retry_time = 0
+        while retry_status:
+            try:
+                if retry_time > 0:
+                    print("Retry find element {0} : {1} ...".format(xpath, retry_time))
+                    
+                el = self.webdriver.find_element_by_xpath(xpath)
+                retry_status = False
+                
+            except:
+                print('XPATH : {0} Not found.'.format(xpath))
+                retry_time += 1
+                #self.close()
+                #sys.exit()
 
         return el
 
-    def enter(self, element):
+    def set_input_enter(self, element):
         element.send_keys(Keys.RETURN)
 
         return element
