@@ -28,7 +28,7 @@
 #-----------------------------------------------------------------------------
 """
 
-total_price = 1 #Nhập BTC hiện tại
+total_btc = 1 #Nhập BTC hiện tại
 plan_list = [
     11600,
     11550,
@@ -40,15 +40,17 @@ plan_list.sort(reverse=False)
 
 split_price = {}
 
-price = total_price
+btc = total_btc
+total_price = 0
 for x in plan_list:
-    price = round(price/2, 8)#Làm tròn 8 số thập phân
-    split_price[x] = price
+    total_price += x
+    btc = round(btc/2, 8)#Làm tròn 8 số thập phân
+    split_price[x] = btc
 
 
 split_price = dict(sorted(split_price.items(), reverse=True))
 
-print('BTC hiện có {0} BTC'.format(total_price))
+print('BTC hiện có {0} BTC'.format(total_btc))
 
 xx = 0
 i = 0
@@ -58,6 +60,7 @@ for k in split_price:
     xx += split_price[k]
 
 print('Tổng các lệnh {0} BTC'.format(xx))
+print('Giá trung bình : {0}'.format(total_price/i))
 
 
 exit
