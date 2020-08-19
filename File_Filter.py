@@ -20,8 +20,9 @@
 """
 
 #Import lib
-import os, re, fnmatch, shutil, zipfile
+import os, re, fnmatch, shutil
 from datetime import datetime
+import pyunpack #pip install pyunpack
 
 class AnalyzeFolder:
 
@@ -121,14 +122,16 @@ class AnalyzeFolder:
                             folder_extract_to = file_dist_random_path
                             print("Created file {0}".format(file_dist_random_path))
 
-                    if file_extension == ".zip":
+                    #if file_extension == ".zip":
                         filename, file_extension = os.path.splitext(folder_extract_to)
                         folder_extract_to = filename
                         if not os.path.exists(folder_extract_to):
                             os.makedirs(folder_extract_to)
                         try:
-                            with zipfile.ZipFile(file, 'r') as zip_ref:
-                                zip_ref.extractall(folder_extract_to)
+                            #with zipfile.ZipFile(file, 'r') as zip_ref:
+                            #    zip_ref.extractall(folder_extract_to)
+                            pyunpack.Archive(file).extractall(folder_extract_to)
+                            pyunpack.extract_archive(file, folder_extract_to)
                             print("Extracted zip : {0}".format(file))
                         except:
                             os.rmdir(folder_extract_to)
@@ -151,8 +154,8 @@ class AnalyzeFolder:
             print("Có lỗi xảy ra.")
 
 #Start application
-folder_input = "C:\\Users\\QuocMinh\\Desktop\\test\\in"
-folder_output = "C:\\Users\\QuocMinh\\Desktop\\test\\out"
+folder_input = "X:\\01-WIN10-TMP\\Desktop\\testPY\\in"
+folder_output = "X:\\01-WIN10-TMP\\Desktop\\testPY\\out"
 pattern_file = "^.*.*$"
 size_group = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 200, 400, 500, 1000] #MB
 limit_copy_size = -1 #MB (-1 is unlimited)

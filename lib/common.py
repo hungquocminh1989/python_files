@@ -143,7 +143,7 @@ class Remoting:
 import subprocess, requests
 import winreg
 class ProxyX:
-    def __init__(self, hostname, password, port="22", username="root"):
+    def __init__(self, hostname, password, port="22", username="root", setting_proxy=False):
         self.connection = subprocess.Popen(["lib\\ssh_tool\\ConnectSSH.exe", hostname, port, username, password])
         print(self.connection)
         self.internet_settings = winreg.OpenKey(
@@ -152,6 +152,7 @@ class ProxyX:
                 0,
                 winreg.KEY_ALL_ACCESS
         )
+        self.setting_proxy = setting_proxy
 
     def start(self):
         retry_status = True
@@ -179,12 +180,17 @@ class ProxyX:
                 retry_time += 1
                 retry_status = True
 
-        #self.apply_proxy_setting()
+        if self.setting_proxy == True:
+            self.apply_proxy_setting()
+            
         print('Proxy connected.')
 
     def stop(self):
         self.connection.kill()
-        #self.remove_proxy_setting()
+
+        if self.setting_proxy == True:
+            self.remove_proxy_setting()
+            
         print('Proxy disconnected.')
 
     
@@ -429,6 +435,45 @@ class SeleniumInstance:
     def close(self):
         self.webdriver.close()
         self.webdriver.quit()
+
+'''
+#Chưa test
+#pip install python-crontab
+from crontab import CronTab
+class CronSetting:
+
+    def __init__(self, username):
+        self.my_cron = CronTab(user=username)
+
+    def addCommand(self, command, comment):
+        self.my_cron.new(command=command, comment=comment)
+        
+        return None
+
+    def updateSchedule(self, comment):
+        for job in self.my_cron:
+            if job.comment == comment:
+                job.minute.every(1)
+
+        self.write()
+
+        return None
+
+    def remove(self, comment):
+        self.my_cron.remove(comment=comment)
+        self.write()
+
+        return None
+
+    def write(self):
+        self.my_cron.write()
+        self.my_cron.enable()
+        self.my_cron.every_reboot()
+
+        return None
+'''
+
+    
         
 
         
