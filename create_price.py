@@ -29,8 +29,9 @@
 """
 
 split_price_result = {}
-define_btc = 1 #Nhập BTC hiện tại
+define_btc = 1.5 #Nhập BTC hiện tại
 plan_list = [ #Nhập khoảng giá cần vào lệnh
+    11650,
     11600,
     11550,
     11500,
@@ -52,7 +53,7 @@ for p in plan_list:
 split_price_result = dict(sorted(split_price_result.items(), reverse=True))
 
 last_btc = split_price_result[list(split_price_result.keys())[-1]]
-split_price_result[list(split_price_result.keys())[-1]] = last_btc + (1 - total_btc)
+split_price_result[list(split_price_result.keys())[-1]] = last_btc + (define_btc - total_btc)
 
 i = 0
 total_all_btc = 0
