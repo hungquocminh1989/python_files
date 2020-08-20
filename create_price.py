@@ -28,39 +28,40 @@
 #-----------------------------------------------------------------------------
 """
 
-total_btc = 1 #Nhập BTC hiện tại
-plan_list = [
+split_price_result = {}
+define_btc = 1 #Nhập BTC hiện tại
+plan_list = [ #Nhập khoảng giá cần vào lệnh
     11600,
     11550,
     11500,
     11450,
-    11400
+    11400,
 ]
+
 plan_list.sort(reverse=False)
 
-split_price = {}
-
-btc = total_btc
+btc = define_btc
 total_price = 0
-for x in plan_list:
-    total_price += x
-    btc = round(btc/2, 8)#Làm tròn 8 số thập phân
-    split_price[x] = btc
+total_btc = 0
+for p in plan_list:
+    total_price += p
+    btc = round(btc/2, 8) #Làm tròn 8 số thập phân
+    split_price_result[p] = btc
+    total_btc += btc
 
+split_price_result = dict(sorted(split_price_result.items(), reverse=True))
 
-split_price = dict(sorted(split_price.items(), reverse=True))
+last_btc = split_price_result[list(split_price_result.keys())[-1]]
+split_price_result[list(split_price_result.keys())[-1]] = last_btc + (1 - total_btc)
 
-print('BTC hiện có {0} BTC'.format(total_btc))
-
-xx = 0
 i = 0
-for k in split_price:
+total_all_btc = 0
+for k in split_price_result:
     i += 1
-    print('Vào lệnh lần {0} : Giá {1} -> {2} BTC'.format(i, k, split_price[k]))
-    xx += split_price[k]
+    print('Vào lệnh lần {0} : Giá {1} USDT -> {2} BTC'.format(i, k, split_price_result[k]))
+    total_all_btc += split_price_result[k]
 
-print('Tổng các lệnh {0} BTC'.format(xx))
-print('Giá trung bình : {0}'.format(total_price/i))
-
-
+print('BTC hiện có {0} BTC'.format(define_btc))
+print('Giá trung bình : {0} USDT'.format(round(total_price/i, 2)))
+print('Tổng các lệnh {0} BTC'.format(total_all_btc))
 exit
