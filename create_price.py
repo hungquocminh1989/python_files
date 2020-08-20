@@ -29,17 +29,21 @@
 """
 
 split_price_result = {}
+status = 'SHORT'
 define_btc = 1.5 #Nhập BTC hiện tại
 plan_list = [ #Nhập khoảng giá cần vào lệnh
-    11650,
-    11600,
-    11550,
-    11500,
-    11450,
-    11400,
+    12000,
+    12100,
+    12200,
+    12300,
+    12400,
 ]
 
-plan_list.sort(reverse=False)
+print('VÀO LỆNH : {0}'.format(status))
+if status == 'LONG':
+   plan_list.sort(reverse=False)
+elif status == 'SHORT':
+    plan_list.sort(reverse=True)
 
 btc = define_btc
 total_price = 0
@@ -50,7 +54,10 @@ for p in plan_list:
     split_price_result[p] = btc
     total_btc += btc
 
-split_price_result = dict(sorted(split_price_result.items(), reverse=True))
+if status == 'LONG':
+    split_price_result = dict(sorted(split_price_result.items(), reverse=True))
+elif status == 'SHORT':
+    split_price_result = dict(sorted(split_price_result.items(), reverse=False))
 
 last_btc = split_price_result[list(split_price_result.keys())[-1]]
 split_price_result[list(split_price_result.keys())[-1]] = last_btc + (define_btc - total_btc)
