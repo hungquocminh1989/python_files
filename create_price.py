@@ -29,9 +29,9 @@
 """
 
 split_price_result = {}
-status = 'SHORT'
+status = 'SHORT' # LONG hoặc SHORT
 define_btc = 1.5 #Nhập BTC hiện tại
-plan_list = [ #Nhập khoảng giá cần vào lệnh
+plan_list = [ #Nhập khoảng giá cần vào lệnh ( luôn nhập tăng dần )
     12000,
     12100,
     12200,
