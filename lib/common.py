@@ -328,10 +328,10 @@ from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.touch_actions import TouchActions
-import pickle
+import pickle, time
 class SeleniumInstance:
 
-    def __init__(self, proxy_ip='127.0.0.1', proxy_port='1080'):
+    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080'):
         
         chrome_options = Options()  
         #chrome_options.add_argument("--headless")
@@ -346,7 +346,14 @@ class SeleniumInstance:
         prox.ssl_proxy = "socks5://{0}:{1}".format(proxy_ip, proxy_port)
 
         capabilities = webdriver.DesiredCapabilities.CHROME
-        prox.add_to_capabilities(capabilities)
+
+        #Pass check
+        #Your connection is not private 
+        #Attackers might be trying to steal your information from 1.1.1.1 (for example, passwords, messages, or credit cards). Learn more"
+        capabilities['acceptSslCerts'] = True
+        
+        if proxy_mode == True :
+            prox.add_to_capabilities(capabilities)
         
         self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options, desired_capabilities=capabilities)
 
@@ -355,6 +362,7 @@ class SeleniumInstance:
         self.set_implicitly_wait(seconds) # seconds
 
     def set_implicitly_wait(self, seconds=1):
+        time.sleep(seconds) # seconds
         self.webdriver.implicitly_wait(seconds) # seconds
 
     def set_input_text(self, xpath, value = ''):
