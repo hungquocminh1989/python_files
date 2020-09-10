@@ -39,24 +39,26 @@ import common
 
 
 # Download the helper library from https://www.twilio.com/docs/python/install
-from twilio.rest import Client
+#from twilio.rest import Client
 
 
 # Your Account Sid and Auth Token from twilio.com/console
 # DANGER! This is insecure. See http://twil.io/secure
-account_sid = 'ACb00ececf355900aa3297390f6ee75bd9'
-auth_token = '857ec47c8544db5f675ae0bb9253ee0e'
+'''
+account_sid = ''
+auth_token = ''
 client = Client(account_sid, auth_token)
 
 message = client.messages \
     .create(
          body='This is the ship that made the Kessel Run in fourteen parsecs?',
-         from_='+84902676026',
-         to='+84902676026'
+         from_='+',
+         to='+'
      )
 
 print(message.sid)
 exit
+'''
 
 class autotest:
     def __init__(self):
@@ -74,34 +76,34 @@ class autotest:
         
         #self.vultr.get_startupscript_list()
         self.browser = common.SeleniumInstance()
-        self.browser.set_redirect('https://api.ipify.org/')
-        self.browser.set_redirect('https://m.facebook.com/reg', 5)
+        self.browser.action_input_click_redirect('https://api.ipify.org/')
+        self.browser.action_input_click_redirect('https://m.facebook.com/reg', 5)
         
         #self.browser._save_cookies()
-        self.browser.set_input_text('//*[@id="firstname_input"]', 'Hoang')#Firstname
-        self.browser.set_input_text('//*[@id="lastname_input"]', 'Dung')#Lastname
-        self.browser.set_implicitly_wait(10)
-        self.browser.set_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
+        self.browser.action_input_text('//*[@id="firstname_input"]', 'Hoang')#Firstname
+        self.browser.action_input_text('//*[@id="lastname_input"]', 'Dung')#Lastname
+        self.browser.action_implicitly_wait(10)
+        self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
         
-        self.browser.set_input_combobox('//*[@id="month"]', value='3')#month
-        self.browser.set_input_combobox('//*[@id="day"]', value='15')#day
-        self.browser.set_input_combobox('//*[@id="year"]', value='1997')#year
-        self.browser.set_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
+        self.browser.action_input_combobox('//*[@id="month"]', value='3')#month
+        self.browser.action_input_combobox('//*[@id="day"]', value='15')#day
+        self.browser.action_input_combobox('//*[@id="year"]', value='1997')#year
+        self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
 
         self.browser.set_implicitly_wait(10)
-        self.browser.set_input_click('//*[@id="mobile-reg-form"]/div[10]/div/a[1]')#Link to mail
+        self.browser.action_input_click('//*[@id="mobile-reg-form"]/div[10]/div/a[1]')#Link to mail
 
-        self.browser.set_input_text('//*[@id="contactpoint_step_input"]', 'nguyenhongduy1987@gmail.com')#Mail
+        self.browser.action_input_text('//*[@id="contactpoint_step_input"]', 'nguyenhongduy1987@gmail.com')#Mail
         self.browser.set_implicitly_wait(10)
-        self.browser.set_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
+        self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
 
-        self.browser.set_input_click('//*[@id="Female"]')#Female
+        self.browser.action_input_click('//*[@id="Female"]')#Female
         self.browser.set_implicitly_wait(10)
-        self.browser.set_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
+        self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
 
-        self.browser.set_input_text('//*[@id="password_step_input"]', 'grdsfỵt12g5gj')#Password
+        self.browser.action_input_text('//*[@id="password_step_input"]', 'grdsfỵt12g5gj')#Password
         self.browser.set_implicitly_wait(10)
-        self.browser.set_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[4]')#Next
+        self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[4]')#Next
 
         #self.vultr.destroy_server(r['SUBID'])
 
@@ -110,10 +112,30 @@ class autotest:
         #print(info)
         proxy = common.ProxyX(hostname=info['main_ip'], password=info["default_password"], port='15', setting_proxy=True)
         proxy.start()
+
+    def test_mmen(self):
+        url = 'https://13.231.155.63/shop/yamagata/testshop1/window/step1'
+        self.browser = common.SeleniumInstance()
+        
+        self.browser.set_time_default_waiting(1)
+        self.browser.set_implicitly_wait(5)
+        
+        for i in range(1):
+            self.browser.action_redirect(url)
+            self.browser.action_input_click('//*[@id="list-content"]/div[2]/ul/li[1]/div')
+            self.browser.action_input_click('//*[@id="list-content"]/div[4]/ul/li[1]/div')
+            self.browser.action_input_click('//*[@id="wrap-btn"]/div/form/button')
+            self.browser.action_input_click('//*[@id="list-content"]/div/ul[1]/li[3]/div')
+            self.browser.action_input_click('//*[@id="wrap-btn"]/div/form/button')
+            self.browser.action_input_combobox('//*[@id="wrap-hw-chois"]/table/tbody/tr[1]/td[2]/select', '1000')
+            self.browser.action_input_combobox('//*[@id="wrap-hw-chois"]/table/tbody/tr[2]/td[2]/select', '600')
+            self.browser.action_input_click('//*[@id="wrap-btn"]/form/button')
+            self.browser.action_input_click('//*[@id="add_cart"]/button')
+            self.browser.action_input_click('//*[@id="wrap-btn"]/a[1]/button')
         
         
         
 
 obj = autotest()
-obj.run()
+obj.test_mmen()
 exit

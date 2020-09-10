@@ -333,7 +333,12 @@ class SeleniumInstance:
 
     def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080'):
         
-        chrome_options = Options()  
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        prefs = {
+                "download.default_directory" : "C:\\SeleniumDownloads"
+        }
+        chrome_options.add_experimental_option("prefs",prefs)
         #chrome_options.add_argument("--headless")
         #chrome_options.add_argument("--disable-infobars")
         #chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']); # Hide display "Chrome is being controlled by automated test software"
@@ -356,22 +361,34 @@ class SeleniumInstance:
             prox.add_to_capabilities(capabilities)
         
         self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options, desired_capabilities=capabilities)
+        self.time_default_waiting = 0.5 #seconds
 
-    def set_redirect(self, url, seconds=1):
+    def action_redirect(self, url):
+        self.action_waiting() #default waiting
         self.webdriver.get(url)
-        self.set_implicitly_wait(seconds) # seconds
+
+    def action_waiting(self, seconds=None):
+        if seconds == None :
+            time.sleep(self.time_default_waiting)
+        else:
+            time.sleep(seconds)
+
+    def set_time_default_waiting(self, seconds):
+        self.time_default_waiting = seconds
 
     def set_implicitly_wait(self, seconds=1):
-        time.sleep(seconds) # seconds
-        self.webdriver.implicitly_wait(seconds) # seconds
+        self.action_waiting() #default waiting
+        self.webdriver.implicitly_wait(seconds) #seconds
 
-    def set_input_text(self, xpath, value = ''):
+    def action_input_text(self, xpath, value = ''):
+        self.action_waiting() #default waiting
         el = self._find_by_xpath(xpath)
         el.send_keys(value)
         
         return el
 
-    def set_input_combobox(self, xpath, value='', text=''):
+    def action_input_combobox(self, xpath, value='', text=''):
+        self.action_waiting() #default waiting
         el = self._find_by_xpath(xpath)
         select = Select(el)
 
@@ -382,14 +399,16 @@ class SeleniumInstance:
 
         return el
 
-    def set_input_tap(self, xpath):
+    def action_input_tap(self, xpath):
+        self.action_waiting() #default waiting
         el = self.get_control(xpath)
         touchactions = TouchActions(self.webdriver)
         touchactions.double_tap(el)
         
         return el
 
-    def set_input_click(self, xpath):
+    def action_input_click(self, xpath):
+        self.action_waiting() #default waiting
         el = self.get_control(xpath)
         el.click()
         
@@ -401,7 +420,7 @@ class SeleniumInstance:
         return el
 
     def _find_by_xpath(self, xpath):
-
+        
         el = None
         retry_status = True
         retry_time = 0
@@ -421,7 +440,8 @@ class SeleniumInstance:
 
         return el
 
-    def set_input_enter(self, element):
+    def action_input_enter(self, element):
+        self.action_waiting() #default waiting
         element.send_keys(Keys.RETURN)
 
         return element
