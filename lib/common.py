@@ -328,6 +328,9 @@ from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.touch_actions import TouchActions
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import pickle, time
 class SeleniumInstance:
 
@@ -361,7 +364,19 @@ class SeleniumInstance:
             prox.add_to_capabilities(capabilities)
         
         self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options, desired_capabilities=capabilities)
-        self.time_default_waiting = 0.5 #seconds
+        self.time_sleep_waiting = 0.5 #seconds
+        self.timeout_waiting = 10 #seconds
+        
+        #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
+        self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
+
+    def set_time_sleep_waiting(self, seconds):
+        self.time_sleep_waiting = seconds
+    
+    def set_timeout_waiting(self, seconds):
+        self.timeout_waiting = seconds
+        #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
+        self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
 
     def action_redirect(self, url):
         self.action_waiting() #default waiting
@@ -369,16 +384,9 @@ class SeleniumInstance:
 
     def action_waiting(self, seconds=None):
         if seconds == None :
-            time.sleep(self.time_default_waiting)
+            time.sleep(self.time_sleep_waiting)
         else:
             time.sleep(seconds)
-
-    def set_time_default_waiting(self, seconds):
-        self.time_default_waiting = seconds
-
-    def set_implicitly_wait(self, seconds=1):
-        self.action_waiting() #default waiting
-        self.webdriver.implicitly_wait(seconds) #seconds
 
     def action_input_text(self, xpath, value = ''):
         self.action_waiting() #default waiting
@@ -429,7 +437,12 @@ class SeleniumInstance:
                 if retry_time > 0:
                     print("Retry find element {0} : {1} ...".format(xpath, retry_time))
                     
-                el = self.webdriver.find_element_by_xpath(xpath)
+                #el = self.webdriver.find_element_by_xpath(xpath)
+
+                el = WebDriverWait(self.webdriver, self.timeout_waiting).until(
+                    EC.element_to_be_clickable((By.XPATH, xpath))
+                )
+                            
                 retry_status = False
                 
             except:

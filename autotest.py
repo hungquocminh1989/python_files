@@ -117,8 +117,8 @@ class autotest:
         url = 'https://13.231.155.63/shop/yamagata/testshop1/window/step1'
         self.browser = common.SeleniumInstance()
         
-        self.browser.set_time_default_waiting(1)
-        self.browser.set_implicitly_wait(5)
+        #self.browser.set_time_sleep_waiting(1)
+        #self.browser.set_timeout_waiting(10)
         
         for i in range(1):
             self.browser.action_redirect(url)
@@ -131,7 +131,7 @@ class autotest:
             self.browser.action_input_combobox('//*[@id="wrap-hw-chois"]/table/tbody/tr[2]/td[2]/select', '600')
             self.browser.action_input_click('//*[@id="wrap-btn"]/form/button')
             self.browser.action_input_click('//*[@id="add_cart"]/button')
-            self.browser.action_input_click('//*[@id="wrap-btn"]/a[1]/button')
+            #self.browser.action_input_click('//*[@id="wrap-btn"]/a[1]/button')
         
         
         
