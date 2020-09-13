@@ -69,20 +69,20 @@ class autotest:
     def run(self):        
         
         #r = self.vultr.create_server()
-        info = self.vultr.get_server_info('27676263')
+        #info = self.vultr.get_server_info('27676263')
         #print(info)
-        proxy = common.ProxyX(hostname=info['main_ip'], password=info["default_password"], port='15')
-        proxy.start()
+        #proxy = common.ProxyX(hostname=info['main_ip'], password=info["default_password"], port='15')
+        #proxy.start()
         
         #self.vultr.get_startupscript_list()
         self.browser = common.SeleniumInstance()
-        self.browser.action_input_click_redirect('https://api.ipify.org/')
-        self.browser.action_input_click_redirect('https://m.facebook.com/reg', 5)
+        self.browser.action_redirect('https://api.ipify.org/')
+        self.browser.action_redirect('https://m.facebook.com/reg')
         
         #self.browser._save_cookies()
         self.browser.action_input_text('//*[@id="firstname_input"]', 'Hoang')#Firstname
         self.browser.action_input_text('//*[@id="lastname_input"]', 'Dung')#Lastname
-        self.browser.action_implicitly_wait(10)
+        #self.browser.action_implicitly_wait(10)
         self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
         
         self.browser.action_input_combobox('//*[@id="month"]', value='3')#month
@@ -90,19 +90,19 @@ class autotest:
         self.browser.action_input_combobox('//*[@id="year"]', value='1997')#year
         self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
 
-        self.browser.set_implicitly_wait(10)
+        #self.browser.set_implicitly_wait(10)
         self.browser.action_input_click('//*[@id="mobile-reg-form"]/div[10]/div/a[1]')#Link to mail
 
         self.browser.action_input_text('//*[@id="contactpoint_step_input"]', 'nguyenhongduy1987@gmail.com')#Mail
-        self.browser.set_implicitly_wait(10)
+        #self.browser.set_implicitly_wait(10)
         self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
 
-        self.browser.action_input_click('//*[@id="Female"]')#Female
-        self.browser.set_implicitly_wait(10)
+        self.browser.action_input_click('//*[@id="Nữ"]')#Female
+        #self.browser.set_implicitly_wait(10)
         self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[1]')#Next
 
         self.browser.action_input_text('//*[@id="password_step_input"]', 'grdsfỵt12g5gj')#Password
-        self.browser.set_implicitly_wait(10)
+        #self.browser.set_implicitly_wait(10)
         self.browser.action_input_click('//*[@id="mobile-reg-form"]/*/div[2]/button[4]')#Next
 
         #self.vultr.destroy_server(r['SUBID'])
@@ -118,11 +118,11 @@ class autotest:
         self.browser = common.SeleniumInstance()
         
         #self.browser.set_time_sleep_waiting(1)
-        #self.browser.set_timeout_waiting(10)
+        self.browser.set_timeout_waiting(30)
         
         for i in range(1):
             self.browser.action_redirect(url)
-            self.browser.action_input_click('//*[@id="list-content"]/div[2]/ul/li[1]/div')
+            #self.browser.action_input_click('//*[@id="list-content"]/div[2]/ul/li[1]/div')
             self.browser.action_input_click('//*[@id="list-content"]/div[4]/ul/li[1]/div')
             self.browser.action_input_click('//*[@id="wrap-btn"]/div/form/button')
             self.browser.action_input_click('//*[@id="list-content"]/div/ul[1]/li[3]/div')
@@ -137,5 +137,5 @@ class autotest:
         
 
 obj = autotest()
-obj.test_mmen()
+obj.run()
 exit

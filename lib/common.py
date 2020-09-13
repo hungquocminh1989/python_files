@@ -365,7 +365,7 @@ class SeleniumInstance:
         
         self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options, desired_capabilities=capabilities)
         self.time_sleep_waiting = 0.5 #seconds
-        self.timeout_waiting = 10 #seconds
+        self.timeout_waiting = 30 #seconds
         
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
@@ -439,7 +439,7 @@ class SeleniumInstance:
                     
                 #el = self.webdriver.find_element_by_xpath(xpath)
 
-                el = WebDriverWait(self.webdriver, self.timeout_waiting).until(
+                el = WebDriverWait(self.webdriver, self.timeout_waiting, poll_frequency=1).until(
                     EC.element_to_be_clickable((By.XPATH, xpath))
                 )
                             
