@@ -114,28 +114,98 @@ class autotest:
         proxy.start()
 
     def test_mmen(self):
-        url = 'https://13.231.155.63/shop/yamagata/testshop1/window/step1'
+        url = 'https://13.231.155.63/shop/gumma/yamadap/window/step1'
+
+        inplus_data_2 = {
+            'step1' : {
+                'product'   : '//*[@id="list-content"]/div[2]/ul/li[1]/div',
+                'door'      : '//*[@id="list-content"]/div[4]/ul/li[1]/div',
+                'next'      : '//*[@id="wrap-btn"]/div/form/button',
+            },
+            'step2' : {
+                'color'     : '//*[@id="list-content"]/div/ul[2]/div[1]/div/li[1]/div',
+                'next'      : '//*[@id="wrap-btn"]/div/form/button',
+            },
+            'step3' : {
+                'width'     : '//*[@id="wrap-hw-chois"]/table/tbody/tr[1]/td[2]/select',
+                'height'    : '//*[@id="wrap-hw-chois"]/table/tbody/tr[2]/td[2]/select',
+                'next'      : '//*[@id="wrap-btn"]/form/button',
+            },
+            'result' : {
+                'option_1'  : '//*[@id="list-content"]/section[2]/div[2]/div[2]/label/span[1]',
+                'option_2'  : '//*[@id="list-content"]/section[2]/div[3]/div[2]/label/span[1]',
+                'option_3'  : '//*[@id="list-content"]/section[2]/div[4]/div[2]/label/span[1]',
+                'add_cart'  : '//*[@id="add_cart"]/button',
+                'back_step3' : '//*[@id="breadcrumbs-one"]/li[3]/a',
+                'price' : '//*[@id="price-total"]',
+            }
+        }
+        
+        inplus_data_price = [
+                {
+                    'door' : '2 枚建',
+                    'width' : '1000',
+                    'height' : '600',
+                    'price_option_1' : '¥55,000',
+                    'price_option_2' : '¥55,000',
+                    'price_option_3' : '¥55,000',
+                },
+        ]
+        
         self.browser = common.SeleniumInstance()
         
         #self.browser.set_time_sleep_waiting(1)
         self.browser.set_timeout_waiting(30)
         
-        for i in range(1):
+        for item in inplus_data_price:
             self.browser.action_redirect(url)
-            #self.browser.action_input_click('//*[@id="list-content"]/div[2]/ul/li[1]/div')
-            self.browser.action_input_click('//*[@id="list-content"]/div[4]/ul/li[1]/div')
-            self.browser.action_input_click('//*[@id="wrap-btn"]/div/form/button')
-            self.browser.action_input_click('//*[@id="list-content"]/div/ul[1]/li[3]/div')
-            self.browser.action_input_click('//*[@id="wrap-btn"]/div/form/button')
-            self.browser.action_input_combobox('//*[@id="wrap-hw-chois"]/table/tbody/tr[1]/td[2]/select', '1000')
-            self.browser.action_input_combobox('//*[@id="wrap-hw-chois"]/table/tbody/tr[2]/td[2]/select', '600')
-            self.browser.action_input_click('//*[@id="wrap-btn"]/form/button')
-            self.browser.action_input_click('//*[@id="add_cart"]/button')
+
+            #step1
+            self.browser.action_input_click(inplus_data_2['step1']['product'])
+            self.browser.action_input_click(inplus_data_2['step1']['door'])
+            self.browser.action_input_click(inplus_data_2['step1']['next'])
+
+            #step2
+            self.browser.action_input_click(inplus_data_2['step2']['color'])
+            self.browser.action_input_click(inplus_data_2['step2']['next'])
+
+            #step3
+            self.browser.action_input_combobox(inplus_data_2['step3']['width'], item['width'])
+            self.browser.action_input_combobox(inplus_data_2['step3']['height'], item['height'])
+            self.browser.action_input_click(inplus_data_2['step3']['next'])
+
+            #result
+            self.browser.action_waiting(1)
+            self.browser.action_input_click(inplus_data_2['result']['option_1'])
+            self.browser.action_waiting(1)
+            
+            if self.browser.action_get_text(inplus_data_2['result']['price']) == item['price_option_1'] :
+                self.browser.action_screenshot("{0}_({1}x{2})_option_1_OK.png".format(item['door'], item['width'], item['height']))
+            else:
+                self.browser.action_screenshot("{0}_({1}x{2})_option_1_NG.png".format(item['door'], item['width'], item['height']))
+
+            
+            self.browser.action_input_click(inplus_data_2['result']['option_2'])
+            self.browser.action_waiting(1)
+
+            if self.browser.action_get_text(inplus_data_2['result']['price']) == item['price_option_2'] :
+                self.browser.action_screenshot("{0}_({1}x{2})_option_2_OK.png".format(item['door'], item['width'], item['height']))
+            else:
+                self.browser.action_screenshot("{0}_({1}x{2})_option_2_NG.png".format(item['door'], item['width'], item['height']))
+            
+            self.browser.action_input_click(inplus_data_2['result']['option_3'])
+            self.browser.action_waiting(1)
+
+            if self.browser.action_get_text(inplus_data_2['result']['price']) == item['price_option_3'] :
+                self.browser.action_screenshot("{0}_({1}x{2})_option_3_OK.png".format(item['door'], item['width'], item['height']))
+            else:
+                self.browser.action_screenshot("{0}_({1}x{2})_option_3_NG.png".format(item['door'], item['width'], item['height']))
+
             #self.browser.action_input_click('//*[@id="wrap-btn"]/a[1]/button')
         
         
         
 
 obj = autotest()
-obj.run()
+obj.test_mmen()
 exit

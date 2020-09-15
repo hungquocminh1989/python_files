@@ -335,11 +335,19 @@ import pickle, time
 class SeleniumInstance:
 
     def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080'):
+
+        #Define variable
+        self.time_sleep_waiting = 0.5 #seconds
+        self.timeout_waiting = 30 #seconds
+        self.local_storage = {
+            'download' : 'C:\\Selenium_Storage\\Downloads',
+            'screenshot' : 'C:\\Selenium_Storage\\Screenshots',
+        }
         
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")
         prefs = {
-                "download.default_directory" : "C:\\SeleniumDownloads"
+                "download.default_directory" : self.local_storage['download']
         }
         chrome_options.add_experimental_option("prefs",prefs)
         #chrome_options.add_argument("--headless")
@@ -364,8 +372,6 @@ class SeleniumInstance:
             prox.add_to_capabilities(capabilities)
         
         self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options, desired_capabilities=capabilities)
-        self.time_sleep_waiting = 0.5 #seconds
-        self.timeout_waiting = 30 #seconds
         
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
@@ -421,6 +427,17 @@ class SeleniumInstance:
         el.click()
         
         return el
+
+    def action_get_text(self, xpath):
+        el = self.get_control(xpath)
+        return el.text
+
+    def action_screenshot(self, image_name):
+        self.webdriver.save_screenshot("{0}\\{1}".format(self.local_storage['screenshot'],image_name))
+
+
+    def set_path_storage_screenshot(self, path_storage):
+        self.local_storage['screenshot'] = path_storage
 
     def get_control(self, xpath):
         el = self._find_by_xpath(xpath)
