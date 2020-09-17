@@ -339,6 +339,7 @@ class SeleniumInstance:
         #Define variable
         self.time_sleep_waiting = 0.5 #seconds
         self.timeout_waiting = 30 #seconds
+        self.time_retry_setting = 5 #5 lần
         self.local_storage = {
             'download' : 'C:\\Selenium_Storage\\Downloads',
             'screenshot' : 'C:\\Selenium_Storage\\Screenshots',
@@ -465,8 +466,10 @@ class SeleniumInstance:
             except:
                 print('XPATH : {0} Not found.'.format(xpath))
                 retry_time += 1
-                #self.close()
-                #sys.exit()
+
+                if retry_time >= self.time_retry_setting:
+                    self.close()
+                    sys.exit()
 
         return el
 
