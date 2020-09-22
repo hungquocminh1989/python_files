@@ -377,6 +377,9 @@ class SeleniumInstance:
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
 
+    def set_time_retry_setting(self, time_number):
+        self.time_retry_setting = time_number
+
     def set_time_sleep_waiting(self, seconds):
         self.time_sleep_waiting = seconds
     
