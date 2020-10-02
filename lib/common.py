@@ -500,6 +500,43 @@ class SeleniumInstance:
         self.webdriver.close()
         self.webdriver.quit()
 
+import cloudinary
+class Cloudinary:
+    
+    def __init__(self, cloud_name, api_key, api_secret):
+        cloudinary.config( 
+            cloud_name = cloud_name,
+            api_key = api_key, 
+            api_secret = api_secret 
+        )
+
+    def upload(self, url):
+        result = cloudinary.uploader.upload(url)
+
+        return result
+
+    def destroy(self, public_id):
+        result = cloudinary.uploader.destroy(public_id)
+
+        return result
+
+    def multi_upload(self, attachments):
+        cloudinary_images = {}
+        if len(attachments) > 0:
+            for i in range(len(attachments)):
+                result = self.upload(attachments[i])
+                cloudinary_images[result['public_id']] = result['secure_url']
+
+        return cloudinary_images
+
+    def remove(self, cloudinary_urls):
+        if len(cloudinary_urls) > 0:
+            for public_id in cloudinary_urls:
+                self.destroy(public_id)
+
+        return None
+
+
 '''
 #Chưa test
 #pip install python-crontab
