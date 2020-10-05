@@ -334,7 +334,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import pickle, time
 class SeleniumInstance:
 
-    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080'):
+    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win'):
 
         #Define variable
         self.time_sleep_waiting = 0.5 #seconds
@@ -371,8 +371,15 @@ class SeleniumInstance:
         
         if proxy_mode == True :
             prox.add_to_capabilities(capabilities)
+
+        if system_os == 'win':
+            selenium_driver = 'lib\\selenium\\chrome\\driver\\chromedriver.exe'
+        elif system_os == 'linux':
+            selenium_driver = 'lib\\selenium\\chrome\\driver\\chromedriver'
+        else:
+            selenium_driver = ''
         
-        self.webdriver = webdriver.Chrome(executable_path='lib\\selenium\\chrome\\driver\\chromedriver.exe', chrome_options=chrome_options, desired_capabilities=capabilities)
+        self.webdriver = webdriver.Chrome(executable_path=selenium_driver, chrome_options=chrome_options, desired_capabilities=capabilities)
         
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
