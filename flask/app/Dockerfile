@@ -23,12 +23,10 @@ ENV PATH=/usr/src/app/miniconda3/bin:$PATH
 
 # CREATE NEW ENV
 RUN . /usr/src/app/miniconda3/etc/profile.d/conda.sh \
-
 	# IMPORT WITH FILE REQUIREMENTS.TXT
 	#&& conda create -y -n docker_env python=3.8 \
 	#&& conda activate docker_env \
 	#&& pip install -r requirements.txt
-	
 	# IMPORT WITH FILE ENVIRONMENT.YML
 	&& conda env create -f environment.yml
 	
