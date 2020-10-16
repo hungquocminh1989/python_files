@@ -114,7 +114,10 @@ class autotest:
         proxy.start()
 
     def test_mmen(self):
+        remote_url = 'http://192.168.99.100:4444/wd/hub'
         url = 'https://13.231.155.63/shop/gumma/yamadap/window/step1'
+        #url = 'https://test.pattolixil-madohonpo.jp/shop/gumma/yamadap/window/step1'
+        #url = 'https://stg.pattolixil-madohonpo.jp/shop/hokkaido/test3/window/step1'
 
         inplus_data_2 = {
             'step1' : {
@@ -147,12 +150,12 @@ class autotest:
                     'width' : '1000',
                     'height' : '600',
                     'price_option_1' : '¥55,000',
-                    'price_option_2' : '¥55,000',
-                    'price_option_3' : '¥55,000',
+                    'price_option_2' : '¥59,000',
+                    'price_option_3' : '¥59,000',
                 },
         ]
         
-        self.browser = common.SeleniumInstance()
+        self.browser = common.SeleniumInstance(remote_url=remote_url)
         
         #self.browser.set_time_sleep_waiting(1)
         self.browser.set_timeout_waiting(30)
@@ -202,6 +205,7 @@ class autotest:
                 self.browser.action_screenshot("{0}_({1}x{2})_option_3_NG.png".format(item['door'], item['width'], item['height']))
 
             #self.browser.action_input_click('//*[@id="wrap-btn"]/a[1]/button')
+            #self.browser.close()
         
         
         
