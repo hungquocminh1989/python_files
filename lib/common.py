@@ -408,6 +408,20 @@ class SeleniumInstance:
         else:
             time.sleep(seconds)
 
+    def action_switch_to_iframe(self, xpath):
+        self.webdriver.switch_to.default_content()
+        self.webdriver.switch_to.frame(self.get_control(xpath))
+
+    def action_switch_to_default(self):
+        self.webdriver.switch_to.default_content()
+
+    def action_handle_alert_window(self):
+        # .accept()
+        # .dismiss()
+        # .text
+        
+        return self.webdriver.switch_to.alert
+
     def action_input_text(self, xpath, value = ''):
         self.action_waiting() #default waiting
         el = self._find_by_xpath(xpath)
