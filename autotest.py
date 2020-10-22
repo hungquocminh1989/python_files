@@ -34,7 +34,8 @@ from datetime import datetime
 from urllib.parse import urlencode
 
 #Import lib common
-sys.path.append('lib')
+ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(ROOT_DIR + '/lib')
 import common
 
 
@@ -114,7 +115,7 @@ class autotest:
         proxy.start()
 
     def test_mmen(self):
-        remote_url = 'http://192.168.99.100:4444/wd/hub'
+        remote_url = 'http://10.211.55.3:4444/wd/hub'
         url = 'https://13.231.155.63/shop/gumma/yamadap/window/step1'
         #url = 'https://test.pattolixil-madohonpo.jp/shop/gumma/yamadap/window/step1'
         #url = 'https://stg.pattolixil-madohonpo.jp/shop/hokkaido/test3/window/step1'
@@ -155,7 +156,7 @@ class autotest:
                 },
         ]
         
-        self.browser = common.SeleniumInstance(remote_url=remote_url)
+        self.browser = common.SeleniumInstance()
         
         #self.browser.set_time_sleep_waiting(1)
         self.browser.set_timeout_waiting(30)
