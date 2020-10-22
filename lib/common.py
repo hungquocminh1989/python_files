@@ -408,6 +408,8 @@ class SeleniumInstance:
         else:
             time.sleep(seconds)
 
+        self.action_screenshot()
+
     def action_switch_to_iframe(self, xpath):
         self.webdriver.switch_to.default_content()
         self.webdriver.switch_to.frame(self.get_control(xpath))
@@ -460,7 +462,10 @@ class SeleniumInstance:
         el = self.get_control(xpath)
         return el.text
 
-    def action_screenshot(self, image_name):
+    def action_screenshot(self, image_name=''):
+        if image_name == '':
+            image_name='{0}.png'.format(datetime.now().strftime('%Y%m%d_%H%M%S_%f'))
+            
         self.webdriver.save_screenshot("{0}\\{1}".format(self.local_storage['screenshot'],image_name))
 
 
