@@ -32,6 +32,9 @@
 import sys, os, json, requests, pycurl, certifi
 from datetime import datetime
 from urllib.parse import urlencode
+from pathlib import Path
+CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
+TMP_DIR = '{0}\\tmp'.format(CURRENT_DIR)
 
 class Shared:
     def curl(self, method, url, data = None, headers = None):
@@ -336,16 +339,21 @@ class SeleniumInstance:
 
     def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win', remote_url = ''):
 
+        # Create base folder
+        self.init_folder()
+        
         #Define variable
+        self.auto_screenshot = False
         self.time_sleep_waiting = 0.5 #seconds
         self.timeout_waiting = 30 #seconds
         self.time_retry_setting = 5 #5 lần
         self.local_storage = {
-            'download' : 'C:\\Selenium_Storage\\Downloads',
-            'screenshot' : 'C:\\Selenium_Storage\\Screenshots',
+            'download' : self.download_dir,
+            'screenshot' : self.screenshot_dir,
         }
         
         chrome_options = Options()
+        chrome_options.add_argument("user-data-dir={0}".format(self.userdata_dir)) #Path to your chrome profile
         chrome_options.add_argument("--start-maximized")
         prefs = {
                 "download.default_directory" : self.local_storage['download']
@@ -387,6 +395,21 @@ class SeleniumInstance:
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
 
+    def init_folder(self):
+
+        # Define folder
+        self.download_dir = '{0}\\Selenium_Storage\\Downloads'.format(TMP_DIR)
+        self.screenshot_dir = '{0}\\Selenium_Storage\\Screenshots'.format(TMP_DIR)
+        self.userdata_dir = '{0}\\Selenium_Storage\\UserData'.format(TMP_DIR)
+
+        # Create folder
+        Path(self.download_dir).mkdir(parents=True, exist_ok=True)
+        Path(self.screenshot_dir).mkdir(parents=True, exist_ok=True)
+        Path(self.userdata_dir).mkdir(parents=True, exist_ok=True)
+
+    def enable_auto_screenshot(self):
+        self.auto_screenshot = True
+
     def set_time_retry_setting(self, time_number):
         self.time_retry_setting = time_number
 
@@ -408,7 +431,8 @@ class SeleniumInstance:
         else:
             time.sleep(seconds)
 
-        self.action_screenshot()
+        if self.auto_screenshot == True:
+            self.action_screenshot()
 
     def action_switch_to_iframe(self, xpath):
         self.webdriver.switch_to.default_content()

@@ -157,6 +157,7 @@ class autotest:
         ]
         
         self.browser = common.SeleniumInstance()
+        self.browser.enable_auto_screenshot()
         
         #self.browser.set_time_sleep_waiting(1)
         self.browser.set_timeout_waiting(30)
