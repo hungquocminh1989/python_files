@@ -337,12 +337,13 @@ from selenium.webdriver.support import expected_conditions as EC
 import pickle, time
 class SeleniumInstance:
 
-    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win', remote_url = ''):
+    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win', remote_url = '', session='_default',):
 
         # Create base folder
-        self.init_folder()
+        self.init_folder(session)
         
         #Define variable
+        self.expected_condition_type = 'element_to_be_clickable'
         self.auto_screenshot = False
         self.time_sleep_waiting = 0.5 #seconds
         self.timeout_waiting = 30 #seconds
@@ -353,12 +354,15 @@ class SeleniumInstance:
         }
         
         chrome_options = Options()
-        chrome_options.add_argument("user-data-dir={0}".format(self.userdata_dir)) #Path to your chrome profile
         chrome_options.add_argument("--start-maximized")
         prefs = {
                 "download.default_directory" : self.local_storage['download']
         }
         chrome_options.add_experimental_option("prefs",prefs)
+
+        if(session != False):
+            chrome_options.add_argument("user-data-dir={0}".format(self.userdata_dir)) #Path to your chrome profile
+        
         #chrome_options.add_argument("--headless")
         #chrome_options.add_argument("--disable-infobars")
         #chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']); # Hide display "Chrome is being controlled by automated test software"
@@ -395,17 +399,20 @@ class SeleniumInstance:
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
 
-    def init_folder(self):
+    def init_folder(self, session):
 
         # Define folder
-        self.download_dir = '{0}\\Selenium_Storage\\Downloads'.format(TMP_DIR)
-        self.screenshot_dir = '{0}\\Selenium_Storage\\Screenshots'.format(TMP_DIR)
-        self.userdata_dir = '{0}\\Selenium_Storage\\UserData'.format(TMP_DIR)
+        self.download_dir = '{0}\\Selenium_Storage\\{1}\\Downloads'.format(TMP_DIR, session)
+        self.screenshot_dir = '{0}\\Selenium_Storage\\{1}\\Screenshots'.format(TMP_DIR, session)
+        self.userdata_dir = '{0}\\Selenium_Storage\\{1}\\UserData'.format(TMP_DIR, session)
 
         # Create folder
         Path(self.download_dir).mkdir(parents=True, exist_ok=True)
         Path(self.screenshot_dir).mkdir(parents=True, exist_ok=True)
         Path(self.userdata_dir).mkdir(parents=True, exist_ok=True)
+
+    def set_expected_condition_type(self, val):
+        self.expected_condition_type = val
 
     def enable_auto_screenshot(self):
         self.auto_screenshot = True
@@ -513,8 +520,11 @@ class SeleniumInstance:
                     
                 #el = self.webdriver.find_element_by_xpath(xpath)
 
+                # https://selenium-python.readthedocs.io/waits.html
+                ec = eval('EC.{0}((By.XPATH, xpath))'.format(self.expected_condition_type))
+
                 el = WebDriverWait(self.webdriver, self.timeout_waiting, poll_frequency=1).until(
-                    EC.element_to_be_clickable((By.XPATH, xpath))
+                    ec
                 )
                             
                 retry_status = False
@@ -526,6 +536,9 @@ class SeleniumInstance:
                 if retry_time >= self.time_retry_setting:
                     self.close()
                     sys.exit()
+
+            finally:
+                self.expected_condition_type = 'element_to_be_clickable'
 
         return el
 

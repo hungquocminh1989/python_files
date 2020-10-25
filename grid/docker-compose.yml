@@ -23,3 +23,11 @@ services:
             - HUB_PORT=4444
         ports:
             - "5900:5900"
+    postgres:
+        image: postgres:latest
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=123456
+            - POSTGRES_DB=python_manage
+        ports:
+            - "5432:5432"
