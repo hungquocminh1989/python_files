@@ -42,16 +42,13 @@ username = 'MinhHung89'
 password = ''
 irepeat = 5
 url_all = 'https://quizlet.com/537818148/edit' # Ôn tập tổng hợp
-url_unit = 'https://quizlet.com/540393860/edit' # UNIT hiện tại
+url_unit = 'https://quizlet.com/540543609/edit' # UNIT hiện tại
 words = [
-    'Generally=Nhìn chung, nói chung',
-    'Throw a party=Lễ kỷ niệm',
-    'Wedding party=Tiệc cưới',
-    'Wedding=Lễ cưới',
-    'National holiday=Ngày nghỉ lễ toàn quốc',
-    'Pray for good luck=Cần vận may, cầu may mắn',
-    'Loved ones=Những người thân yêu',
-    'Feed at home=Tự nhiên như ở nhà',
+    'Cultural diference=Khác biệt về văn hóa',
+    'Tell your fortune=Xem số mệnh',
+    'Boost family bonding=Tăng tính gắn kết trong gia đình',
+    'See a fortune teller=Đi xem bói',
+    'Meant to be=Đã được trời định',
 ]
 
 # Generate words
@@ -69,7 +66,7 @@ browser = common.SeleniumInstance(session=False)
 browser.set_timeout_waiting(1)
 
 # Login
-browser.action_redirect('https://quizlet.com/vi')
+browser.action_redirect('https://quizlet.com')
 browser.action_input_click('//*[@id="SiteHeaderReactTarget"]/header/div[1]/div/div[2]/span[2]/div/div[3]/div/button[1]/span/span')
 browser.action_input_text('//*[@id="username"]', username)
 browser.action_input_text('//*[@id="password"]', password)
@@ -93,3 +90,7 @@ browser.action_input_text('//*[@id="SetPageTarget"]/div/div[3]/div[1]/div/form/t
 browser.set_time_sleep_waiting(5)
 browser.action_input_click('//*[@id="SetPageTarget"]/div/div[3]/div[1]/div/form/div[1]/button/span/span')
 browser.action_input_click('//*[@id="SetPageTarget"]/div/div[1]/div[1]/div/div/div/div[3]/button/span/span')
+
+# Quit
+browser.set_time_sleep_waiting(5)
+browser.close()
