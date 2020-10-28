@@ -34,7 +34,7 @@ from datetime import datetime
 from urllib.parse import urlencode
 from pathlib import Path
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
-TMP_DIR = '{0}\\tmp'.format(CURRENT_DIR)
+TMP_DIR = '{0}/tmp'.format(CURRENT_DIR)
 
 class Shared:
     def curl(self, method, url, data = None, headers = None):
