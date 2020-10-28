@@ -143,6 +143,7 @@ class Remoting:
 
         return True
 
+'''
 import subprocess, requests
 import winreg
 class ProxyX:
@@ -216,6 +217,7 @@ class ProxyX:
     def remove_proxy_setting(self):
         self.set_key('ProxyEnable', 0)
         self.restart_explorer()
+'''
     
 
 class VultrInstance:
@@ -385,7 +387,7 @@ class SeleniumInstance:
             prox.add_to_capabilities(capabilities)
 
         if system_os == 'win':
-            selenium_driver = 'lib\\selenium\\chrome\\driver\\chromedriver.exe'
+            selenium_driver = 'lib/selenium/chrome/driver/chromedriver.exe'
         elif system_os == 'linux':
             selenium_driver = 'lib/selenium/chrome/driver/chromedriver'
         else:
@@ -402,9 +404,9 @@ class SeleniumInstance:
     def init_folder(self, session):
 
         # Define folder
-        self.download_dir = '{0}\\Selenium_Storage\\{1}\\Downloads'.format(TMP_DIR, session)
-        self.screenshot_dir = '{0}\\Selenium_Storage\\{1}\\Screenshots'.format(TMP_DIR, session)
-        self.userdata_dir = '{0}\\Selenium_Storage\\{1}\\UserData'.format(TMP_DIR, session)
+        self.download_dir = '{0}/Selenium_Storage/{1}/Downloads'.format(TMP_DIR, session)
+        self.screenshot_dir = '{0}/Selenium_Storage/{1}/Screenshots'.format(TMP_DIR, session)
+        self.userdata_dir = '{0}/Selenium_Storage/{1}/UserData'.format(TMP_DIR, session)
 
         # Create folder
         Path(self.download_dir).mkdir(parents=True, exist_ok=True)
@@ -601,6 +603,30 @@ class Cloudinary:
                 self.destroy(public_id)
 
         return None
+
+import mysql.connector
+class MySQL:
+
+    def __init__(self, host, username, password, port=3306):
+        self.connection = mysql.connector.connect(
+            host=host,
+            username=username,
+            password=password,
+        )
+        self.db = connection.cursor()
+
+    def query(self, sql, param=None):
+        self.db.execute(sql, param)
+
+        return self.db.fetchall()
+
+    def execute(self, sql, param=None):
+        self.db.execute(sql, param)
+        self.db.commit()
+        
+        return True
+
+        
 
 
 '''
