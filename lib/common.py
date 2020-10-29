@@ -390,6 +390,11 @@ class SeleniumInstance:
             selenium_driver = 'lib/selenium/chrome/driver/chromedriver.exe'
         elif system_os == 'linux':
             selenium_driver = 'lib/selenium/chrome/driver/chromedriver'
+            chrome_options.add_argument('--disable-extensions')
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--disable-gpu')
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-dev-shm-usage')
         else:
             selenium_driver = ''
 
@@ -403,15 +408,16 @@ class SeleniumInstance:
 
     def init_folder(self, session):
 
-        # Define folder
-        self.download_dir = '{0}/Selenium_Storage/{1}/Downloads'.format(TMP_DIR, session)
-        self.screenshot_dir = '{0}/Selenium_Storage/{1}/Screenshots'.format(TMP_DIR, session)
-        self.userdata_dir = '{0}/Selenium_Storage/{1}/UserData'.format(TMP_DIR, session)
+        if session != False:
+            # Define folder
+            self.download_dir = '{0}/Selenium_Storage/{1}/Downloads'.format(TMP_DIR, session)
+            self.screenshot_dir = '{0}/Selenium_Storage/{1}/Screenshots'.format(TMP_DIR, session)
+            self.userdata_dir = '{0}/Selenium_Storage/{1}/UserData'.format(TMP_DIR, session)
 
-        # Create folder
-        Path(self.download_dir).mkdir(parents=True, exist_ok=True)
-        Path(self.screenshot_dir).mkdir(parents=True, exist_ok=True)
-        Path(self.userdata_dir).mkdir(parents=True, exist_ok=True)
+            # Create folder
+            Path(self.download_dir).mkdir(parents=True, exist_ok=True)
+            Path(self.screenshot_dir).mkdir(parents=True, exist_ok=True)
+            Path(self.userdata_dir).mkdir(parents=True, exist_ok=True)
 
     def set_expected_condition_type(self, val):
         self.expected_condition_type = val
@@ -499,7 +505,7 @@ class SeleniumInstance:
         if image_name == '':
             image_name='{0}.png'.format(datetime.now().strftime('%Y%m%d_%H%M%S_%f'))
             
-        self.webdriver.save_screenshot("{0}\\{1}".format(self.local_storage['screenshot'],image_name))
+        self.webdriver.save_screenshot("{0}/{1}".format(self.local_storage['screenshot'],image_name))
 
 
     def set_path_storage_screenshot(self, path_storage):
