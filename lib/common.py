@@ -336,6 +336,7 @@ from selenium.webdriver.common.touch_actions import TouchActions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 import pickle, time
 class SeleniumInstance:
 
@@ -513,6 +514,13 @@ class SeleniumInstance:
 
     def get_control(self, xpath):
         el = self._find_by_xpath(xpath)
+        self.move_to_element(el)
+
+        return el
+
+    def move_to_element(self, el):
+        actions = ActionChains(self.webdriver)
+        actions.move_to_element(el).perform()
 
         return el
 
