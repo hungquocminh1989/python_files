@@ -38,6 +38,8 @@ ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(ROOT_DIR + '/lib')
 import common, automation
 
+#f1 = automation.FacebookInstance('http://192.168.99.100:4444')
 f1 = automation.FacebookInstance()
 #f1.profile()
 f1.login('', '')
+f1.post_to_page('https://mobile.facebook.com/1322105514589118')

@@ -40,8 +40,8 @@ import common
 class GenerateTool:
     def __init__(self):
         command_line_arguments = sys.argv
-        self.token = command_line_arguments[1] if len(sys.argv) > 1 else 'EAASp3DPmNo8BAF76m9lFx4W7plNbFa4vAZCOVzIbIBFNhtvHukvrSsRjSZA2aUYM83SgZAvQH2HaZB1dlvGyo2AMZCdMtQpmxnWHUPlg2i7U5njMUZAV3cp5xKtZBqt4wxPWgXZCRZC5XPxAtIbpKw4jDZCfB3PpZCu2K3En4eCVo7XOvm9NQZBTytvARK4XhxlpunYZD'
-        self.page_ids_string = command_line_arguments[2] if len(sys.argv) > 1 else None #'1225021487526405'
+        self.token = command_line_arguments[1] if len(sys.argv) > 1 else 'EAASp3DPmNo8BAKpntKz6dfpc6qxSIzU4CU26iADtiUJuS4RPI8lLKCht7YIZBddtm1g8oxEHe0t8D486nrPz2xi3Hqj2F69IaDwUwEZBzsaZC9RgRqeIgIi1iQ9K5ueAZAo9RyKu7Upg3qDqtems6Xc7INSFZBE6YWxDkYSOZAyaZBEZAVi950v2x9YllD0mLBwZD'
+        self.page_ids_string = command_line_arguments[2] if len(sys.argv) > 1 else '1322105514589118'
         self.user_id = '2362323090677387' #Minh Hung
         self.client_id = "1312663135467151"
         self.client_secret = "d755242eafec2782d22b5dcb42d3a794"
@@ -55,8 +55,8 @@ class GenerateTool:
         api_url = 'https://graph.facebook.com/v6.0/{0}/accounts?access_token={1}'.format(self.user_id, access_token)
         result = self.shared.curl("GET", api_url, None)
         data = result['data']
-        #print(data[0])
-        page_id_arr = selft.page_ids_string.split(" ")
+        print(data)
+        page_id_arr = self.page_ids_string.split(" ")
         for item in data:
             if item['id'] in page_id_arr or self.page_ids_string == None:
                 print(item['id']  + ' - ' + item['name'] + ' - ' + item['access_token'])

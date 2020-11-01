@@ -45,7 +45,7 @@ class FacebookInstance:
         self.init_web_url()
 
     def init_web_instance(self):
-        self.browser = common.SeleniumInstance(remote_url=self.remote_url)
+        self.browser = common.SeleniumInstance(remote_url=self.remote_url,session='_test/minhhung')
         self.browser.enable_auto_screenshot()
         self.browser.set_time_sleep_waiting(1)
         self.browser.set_timeout_waiting(30)
@@ -64,15 +64,29 @@ class FacebookInstance:
         return None
 
     def login(self, username, password):
-        self.browser.action_redirect(self.login_url)
-        self.browser.action_input_text('//*[@id="m_login_email"]', username)
-        self.browser.action_input_text('//*[@id="m_login_password"]', password)
-        self.browser.action_input_click('//*[@id="u_0_4"]/button')
-
-        #self.profile()
+        is_login = self.check_login_status()
+        
+        if is_login == False:
+            self.browser.action_redirect(self.login_url)
+            self.browser.action_input_text('//*[@id="m_login_email"]', username)
+            self.browser.action_input_text('//*[@id="m_login_password"]', password)
+            self.browser.action_input_click('//*[@id="u_0_4"]/button')
 
         return None
 
     def check_login_status(self):
+        self.profile()
+        exist = self.browser.action_check_exist_element('//*[@id="m_login_email"]')
+        if exist == False:
+            return True
+
+        return False
+
+    def post_to_page(self, page_url):
+        self.browser.action_redirect(page_url)
+        self.browser.action_input_click('//*[@id="action_bar"]/div[1]/a')
+        self.browser.action_input_text('//*[@id="u_0_1h"]', 'test')
+        self.browser.action_upload_file('//*[@id="structured_composer_form"]/div[5]/div/div[1]/button[1]/i[1]','Z:\\1.jpg')
 
         return None
+    

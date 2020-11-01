@@ -338,6 +338,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 import pickle, time
+import psutil
+from contextlib import suppress
+from pywinauto.application import Application #https://zakovinko.com/blog/2016/upload-files-with-selenium-windows-version/
+
 class SeleniumInstance:
 
     def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win', remote_url = '', session='_default',):
@@ -402,7 +406,7 @@ class SeleniumInstance:
         if remote_url == '':
             self.webdriver = webdriver.Chrome(executable_path=selenium_driver, chrome_options=chrome_options, desired_capabilities=capabilities)
         else:
-            self.webdriver = webdriver.Remote(command_executor=remote_url, desired_capabilities=capabilities)
+            self.webdriver = webdriver.Remote(command_executor=f'{remote_url}/wd/hub', desired_capabilities=capabilities)
         
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
@@ -410,6 +414,7 @@ class SeleniumInstance:
     def init_folder(self, session):
 
         if session != False:
+            
             # Define folder
             self.download_dir = '{0}/Selenium_Storage/{1}/Downloads'.format(TMP_DIR, session)
             self.screenshot_dir = '{0}/Selenium_Storage/{1}/Screenshots'.format(TMP_DIR, session)
@@ -502,11 +507,55 @@ class SeleniumInstance:
         el = self.get_control(xpath)
         return el.text
 
+    def action_upload_file(self, xpath, file):
+        self.action_waiting() #default waiting
+        el = self.action_input_click(xpath)
+        
+        self.action_waiting() #default waiting
+        #a = self.webdriver.window_handles
+        #print(a)
+        el.send_keys(file)
+
+        '''
+        for process in psutil.process_iter():
+            if process.name() == 'chrome.exe' and '--test-type=webdriver' in process.cmdline():
+                with suppress(psutil.NoSuchProcess):
+                    print(process.pid)
+        '''
+
+        '''
+        process = psutil.Process(self.webdriver.service.process.pid)
+        print(self.webdriver.service.process.pid)
+        print(process)
+        print(process.children()[0].pid)
+        #print(process.get_children(recursive=True))
+        for i in range(20):
+            app = Application()
+            app.connect(process=process.children()[0].pid)  # connect to browser
+            dialog = app.top_window()           # get active top window (Open dialog)
+            if not dialog.Edit.Exists():         # check if Edit field is exists
+                print(111)
+                time.sleep(1)                    # if no do again in 1 second (waiting for dialog after click)
+                continue
+            dialog.Edit.TypeKeys(file)   # put file path
+            dialog['&OpenButton'].Click()               # click Open button
+            return
+        '''
+
+        return el
+
     def action_screenshot(self, image_name=''):
         if image_name == '':
             image_name='{0}.png'.format(datetime.now().strftime('%Y%m%d_%H%M%S_%f'))
             
         self.webdriver.save_screenshot("{0}/{1}".format(self.local_storage['screenshot'],image_name))
+
+    def action_check_exist_element(self, xpath):
+        el = self._find_by_xpath(xpath, check_exist=True)
+        if el == False:
+            return False
+
+        return True
 
 
     def set_path_storage_screenshot(self, path_storage):
@@ -524,7 +573,7 @@ class SeleniumInstance:
 
         return el
 
-    def _find_by_xpath(self, xpath):
+    def _find_by_xpath(self, xpath, check_exist=False):
         
         el = None
         retry_status = True
@@ -546,6 +595,11 @@ class SeleniumInstance:
                 retry_status = False
                 
             except:
+
+                if check_exist == True:
+                    return False
+                        
+                
                 print('XPATH : {0} Not found.'.format(xpath))
                 retry_time += 1
 
