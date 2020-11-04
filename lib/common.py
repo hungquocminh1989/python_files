@@ -337,19 +337,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-import pickle, time
+import pickle, time, uuid
 import psutil
 from contextlib import suppress
 from pywinauto.application import Application #https://zakovinko.com/blog/2016/upload-files-with-selenium-windows-version/
 
 class SeleniumInstance:
 
-    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win', remote_url = '', session='_default',):
+    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win', remote_url = '', session='_default', headless=False):
 
         # Create base folder
         self.init_folder(session)
         
         #Define variable
+        self.instance_random_string = uuid.uuid4()
         self.expected_condition_type = 'element_to_be_clickable'
         self.auto_screenshot = False
         self.time_sleep_waiting = 0.5 #seconds
@@ -366,6 +367,9 @@ class SeleniumInstance:
                 "download.default_directory" : self.local_storage['download']
         }
         chrome_options.add_experimental_option("prefs",prefs)
+
+        if(headless == True):
+            chrome_options.add_argument('--headless')
 
         if(session != False):
             chrome_options.add_argument("user-data-dir={0}".format(self.userdata_dir)) #Path to your chrome profile
@@ -393,6 +397,7 @@ class SeleniumInstance:
 
         if system_os == 'win':
             selenium_driver = 'lib/selenium/chrome/driver/chromedriver.exe'
+            self.autoit = AutoIT()
         elif system_os == 'linux':
             selenium_driver = 'lib/selenium/chrome/driver/chromedriver'
             chrome_options.add_argument('--disable-extensions')
@@ -507,14 +512,24 @@ class SeleniumInstance:
         el = self.get_control(xpath)
         return el.text
 
-    def action_upload_file(self, xpath, file):
+    def insert_to_dom(self, insert_dom):
+        self.webdriver.execute_script("document.innerHTML = <div id='aaaa'></div>")
+
+        return None
+
+    def action_upload_file(self, xpath):
         self.action_waiting() #default waiting
         el = self.action_input_click(xpath)
-        
         self.action_waiting() #default waiting
-        #a = self.webdriver.window_handles
-        #print(a)
         el.send_keys(file)
+
+        return None
+
+    def action_autoit_upload_file(self, xpath, file):
+        self.action_waiting() #default waiting
+        el = self.action_input_click(xpath)
+        self.action_waiting() #default waiting
+        self.autoit.win_popup_select_file(file)
 
         '''
         for process in psutil.process_iter():
@@ -693,6 +708,21 @@ class MySQL:
         self.db.commit()
         
         return True
+
+import win32com.client
+class AutoIT:
+    def __init__(self):
+        self.autoit = win32com.client.Dispatch("AutoItX3.Control")
+
+    def win_popup_select_file(self, file):
+        self.autoit.WinSetState('Open','',self.autoit.SW_HIDE)
+        self.autoit.WinActivate('Open')
+        self.autoit.WinWaitActive('Open')
+        self.autoit.ControlFocus('Open','','[CLASS:Edit; INSTANCE:1]')
+        self.autoit.Send(file)
+        self.autoit.ControlClick('Open','','[CLASS:Button; INSTANCE:1]')
+
+        return None
 
         
 

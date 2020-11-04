@@ -86,7 +86,8 @@ class FacebookInstance:
         self.browser.action_redirect(page_url)
         self.browser.action_input_click('//*[@id="action_bar"]/div[1]/a')
         self.browser.action_input_text('//*[@id="u_0_1h"]', 'test')
-        self.browser.action_upload_file('//*[@id="structured_composer_form"]/div[5]/div/div[1]/button[1]/i[1]','Z:\\1.jpg')
+        self.browser.action_autoit_upload_file('//*[@id="structured_composer_form"]/div[5]/div/div[1]/button[1]','Z:\\1.jpg')
+        #self.browser.action_input_click('//*[@id="composer-main-view-id"]/div[1]/div/div[3]/div/button[1]')
 
         return None
     
