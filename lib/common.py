@@ -337,14 +337,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-import pickle, time, uuid
+import pickle, time, uuid, speedtest #https://pypi.org/project/speedtest-cli/
 import psutil
 from contextlib import suppress
 from pywinauto.application import Application #https://zakovinko.com/blog/2016/upload-files-with-selenium-windows-version/
 
 class SeleniumInstance:
 
-    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win', remote_url = '', session='_default', headless=False):
+    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win', remote_url = '', session='_default', headless=False, auto_detect_timeout=False):
 
         # Create base folder
         self.init_folder(session)
@@ -360,6 +360,14 @@ class SeleniumInstance:
             'download' : self.download_dir,
             'screenshot' : self.screenshot_dir,
         }
+
+        # Check internet
+        if(auto_detect_timeout==True):
+            s = speedtest.Speedtest()
+            s.get_best_server()
+            s.download()
+            self.timeout_waiting = round(s.results.ping)
+            
         
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")
@@ -609,16 +617,15 @@ class SeleniumInstance:
                             
                 retry_status = False
                 
-            except:
-
-                if check_exist == True:
-                    return False
-                        
+            except:                        
                 
                 print('XPATH : {0} Not found.'.format(xpath))
                 retry_time += 1
 
-                if retry_time >= self.time_retry_setting:
+                if check_exist == True:
+                    return False
+
+                elif retry_time >= self.time_retry_setting:
                     self.close()
                     sys.exit()
 
