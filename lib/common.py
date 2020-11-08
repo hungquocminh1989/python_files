@@ -35,6 +35,11 @@ from urllib.parse import urlencode
 from pathlib import Path
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 TMP_DIR = '{0}/tmp'.format(CURRENT_DIR)
+DB_HOST = ''
+DB_USERNAME = 'root'
+DB_PASSWORD = ''
+DB_PORT = 8989
+DB_NAME = 'pytest'
 
 class Shared:
     def curl(self, method, url, data = None, headers = None):
@@ -344,12 +349,24 @@ from pywinauto.application import Application #https://zakovinko.com/blog/2016/u
 
 class SeleniumInstance:
 
-    def __init__(self, proxy_mode = False, proxy_ip='127.0.0.1', proxy_port='1080', system_os = 'win', remote_url = '', session='_default', headless=False, auto_detect_timeout=False):
+    def __init__(self
+                 , proxy_mode = False
+                 , proxy_ip='127.0.0.1'
+                 , proxy_port='1080'
+                 , system_os = 'win'
+                 , remote_url = ''
+                 , session='_default'
+                 , headless=False
+                 , auto_detect_timeout=False
+        ):
 
         # Create base folder
         self.init_folder(session)
         
         #Define variable
+        self.log_status = True
+        self.oLog = Logs()
+        #self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
         self.instance_random_string = uuid.uuid4()
         self.expected_condition_type = 'element_to_be_clickable'
         self.auto_screenshot = False
@@ -367,6 +384,7 @@ class SeleniumInstance:
             s.get_best_server()
             s.download()
             self.timeout_waiting = round(s.results.ping)
+            self.add_tracking_log(f'Detect internet speed : {self.timeout_waiting}.')
             
         
         chrome_options = Options()
@@ -423,6 +441,19 @@ class SeleniumInstance:
         
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
+        self.add_tracking_log(f'Create selenium instance.')
+
+    def add_tracking_log(self, message=''):
+        if self.log_status == True and self.oLog != None:
+            #screenshot_url = self.action_screenshot()
+            self.oLog.insert_db_logs(message)
+
+        return None
+
+    def set_core_log(self, oLog=None):
+        self.oLog = oLog
+
+        return None
 
     def init_folder(self, session):
 
@@ -458,6 +489,7 @@ class SeleniumInstance:
     def action_redirect(self, url):
         self.action_waiting() #default waiting
         self.webdriver.get(url)
+        self.add_tracking_log(f'Go to link : {url}.')
 
     def action_waiting(self, seconds=None):
         if seconds == None :
@@ -471,9 +503,11 @@ class SeleniumInstance:
     def action_switch_to_iframe(self, xpath):
         self.webdriver.switch_to.default_content()
         self.webdriver.switch_to.frame(self.get_control(xpath))
+        self.add_tracking_log(f'Switch to iframe : {xpath}.')
 
     def action_switch_to_default(self):
         self.webdriver.switch_to.default_content()
+        self.add_tracking_log(f'Switch to default content.')
 
     def action_handle_alert_window(self):
         # .accept()
@@ -486,6 +520,7 @@ class SeleniumInstance:
         self.action_waiting() #default waiting
         el = self._find_by_xpath(xpath)
         el.send_keys(value)
+        self.add_tracking_log(f'Add to a textbox : {value} - {xpath}.')
         
         return el
 
@@ -498,6 +533,8 @@ class SeleniumInstance:
             select.select_by_value(value)
         elif text != '':
             select.select_by_visible_text(text)
+
+        self.add_tracking_log(f'Select a combobox : {value} - {xpath}.')
 
         return el
 
@@ -513,6 +550,8 @@ class SeleniumInstance:
         self.action_waiting() #default waiting
         el = self.get_control(xpath)
         el.click()
+
+        self.add_tracking_log(f'Click to a button : {xpath}.')
         
         return el
 
@@ -536,6 +575,7 @@ class SeleniumInstance:
     def action_autoit_upload_file(self, xpath, file):
         self.action_waiting() #default waiting
         el = self.action_input_click(xpath)
+        self.add_tracking_log(f'Click to a button upload file : {xpath}.')
         self.action_waiting() #default waiting
         self.autoit.win_popup_select_file(file)
 
@@ -567,11 +607,22 @@ class SeleniumInstance:
 
         return el
 
-    def action_screenshot(self, image_name=''):
+    def action_screenshot(self, image_name='', upload_mode=False):
         if image_name == '':
             image_name='{0}.png'.format(datetime.now().strftime('%Y%m%d_%H%M%S_%f'))
             
         self.webdriver.save_screenshot("{0}/{1}".format(self.local_storage['screenshot'],image_name))
+        self.add_tracking_log(f'Create a screenshot : {image_name}.')
+
+        
+        if upload_mode == True:
+            cloud = Cloudinary()
+            cloud.upload("{0}/{1}".format(self.local_storage['screenshot'],image_name))
+            self.add_tracking_log(f'Upload a screenshot : {image_name}.')
+
+            return ''
+
+        return None
 
     def action_check_exist_element(self, xpath):
         el = self._find_by_xpath(xpath, check_exist=True)
@@ -697,13 +748,15 @@ class Cloudinary:
 import mysql.connector
 class MySQL:
 
-    def __init__(self, host, username, password, port=3306):
+    def __init__(self, host, database, username, password, port=3306):
         self.connection = mysql.connector.connect(
             host=host,
             username=username,
             password=password,
+            port=port,
+            database=database,
         )
-        self.db = connection.cursor()
+        self.db = self.connection.cursor()
 
     def query(self, sql, param=None):
         self.db.execute(sql, param)
@@ -712,9 +765,89 @@ class MySQL:
 
     def execute(self, sql, param=None):
         self.db.execute(sql, param)
-        self.db.commit()
+        self.connection.commit()
         
         return True
+
+class Logs:
+    def __init__(self):
+        self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
+        self.execute_id = '-1'
+
+        return None
+
+    def set_execute_id(self, execute_id):
+        self.execute_id = execute_id
+
+    def insert_db_logs(self, message='', url=''):
+        execute_id = self.execute_id
+        sql = f"""
+            INSERT INTO t_execute_logs (t_execute_id, message, image_url)
+            VALUE ('{execute_id}', '{message}', '{url}');
+        """
+        self.db.execute(sql)
+
+import pandas
+class Excel:
+
+    def __init__(self):
+        self.excel = None
+
+    def load(self, file):
+        self.excel = pandas.ExcelFile(file)
+
+        return None
+
+    def get_sheet(self, sheetname):
+        sheet = self.excel.parse(sheetname)
+
+        return sheet
+
+    def get_sheets(self):
+        sheets= {}
+        for sheet_name in self.excel.sheet_names:
+            sheets[sheet_name] = self.get_sheet(sheet_name)
+
+        return sheets
+
+class ImportExcelToDB:
+
+    def __init__(self):
+        self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
+
+    def import_master(self, file):
+        xls = Excel()
+        xls.load(file)
+        sheets = xls.get_sheets()
+
+        for tablename, rows in sheets.items():
+            self.generate_sql_insert(tablename, rows)
+
+        return None
+
+    def generate_sql_insert(self, tablename, rows):
+        # Truncate table
+        self.db.execute(f"TRUNCATE TABLE {tablename};")
+
+        # Insert table
+        columns = rows.columns.values
+        columns_name = ', '.join(columns)
+        for row in rows.iterrows():
+            list_values = []
+            for col in columns:
+                list_values.append(str(row[1][col]))
+
+            columns_value = "'{0}'".format("', '".join(list_values))
+            sql = f"""
+                INSERT INTO {tablename} ({columns_name})
+                VALUES ({columns_value});
+            """
+            print(sql)
+            self.db.execute(sql)
+
+
+        return None
+        
 
 import win32com.client
 class AutoIT:

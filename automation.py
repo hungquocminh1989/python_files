@@ -45,10 +45,8 @@ class FacebookInstance:
         self.init_web_url()
 
     def init_web_instance(self):
-        self.browser = common.SeleniumInstance(remote_url=self.remote_url,session='_test/minhhung')
+        self.browser = common.SeleniumInstance(remote_url=self.remote_url,session='_test/minhhung', auto_detect_timeout=True)
         self.browser.enable_auto_screenshot()
-        self.browser.set_time_sleep_waiting(1)
-        self.browser.set_timeout_waiting(30)
 
     def init_web_url(self):
         self.profile_url = 'https://mobile.facebook.com/profile'
