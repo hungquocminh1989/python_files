@@ -364,15 +364,13 @@ class SeleniumInstance:
         self.init_folder(session)
         
         #Define variable
-        self.log_status = True
-        self.oLog = Logs()
-        #self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
+        self.oDBLog = DBLogs()
         self.instance_random_string = uuid.uuid4()
         self.expected_condition_type = 'element_to_be_clickable'
         self.auto_screenshot = False
         self.time_sleep_waiting = 0.5 #seconds
         self.timeout_waiting = 30 #seconds
-        self.time_retry_setting = 5 #5 lần
+        self.time_retry_setting = 2 #5 lần
         self.local_storage = {
             'download' : self.download_dir,
             'screenshot' : self.screenshot_dir,
@@ -384,7 +382,7 @@ class SeleniumInstance:
             s.get_best_server()
             s.download()
             self.timeout_waiting = round(s.results.ping)
-            self.add_tracking_log(f'Detect internet speed : {self.timeout_waiting}.')
+            self.oDBLog.debug_log(f'Detect internet speed : {self.timeout_waiting}.')
             
         
         chrome_options = Options()
@@ -441,14 +439,7 @@ class SeleniumInstance:
         
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
-        self.add_tracking_log(f'Create selenium instance.')
-
-    def add_tracking_log(self, message=''):
-        if self.log_status == True and self.oLog != None:
-            #screenshot_url = self.action_screenshot()
-            self.oLog.insert_db_logs(message)
-
-        return None
+        self.oDBLog.debug_log(f'Create selenium instance.')
 
     def set_core_log(self, oLog=None):
         self.oLog = oLog
@@ -489,7 +480,7 @@ class SeleniumInstance:
     def action_redirect(self, url):
         self.action_waiting() #default waiting
         self.webdriver.get(url)
-        self.add_tracking_log(f'Go to link : {url}.')
+        self.oDBLog.debug_log(f'Redirect : {url}.')
 
     def action_waiting(self, seconds=None):
         if seconds == None :
@@ -503,11 +494,11 @@ class SeleniumInstance:
     def action_switch_to_iframe(self, xpath):
         self.webdriver.switch_to.default_content()
         self.webdriver.switch_to.frame(self.get_control(xpath))
-        self.add_tracking_log(f'Switch to iframe : {xpath}.')
+        self.oDBLog.debug_log(f'Switch to iframe : {xpath}.')
 
     def action_switch_to_default(self):
         self.webdriver.switch_to.default_content()
-        self.add_tracking_log(f'Switch to default content.')
+        self.oDBLog.debug_log(f'Switch to default content.')
 
     def action_handle_alert_window(self):
         # .accept()
@@ -520,7 +511,7 @@ class SeleniumInstance:
         self.action_waiting() #default waiting
         el = self._find_by_xpath(xpath)
         el.send_keys(value)
-        self.add_tracking_log(f'Add to a textbox : {value} - {xpath}.')
+        self.oDBLog.debug_log(f'Add to a textbox : {value} - {xpath}.')
         
         return el
 
@@ -534,7 +525,7 @@ class SeleniumInstance:
         elif text != '':
             select.select_by_visible_text(text)
 
-        self.add_tracking_log(f'Select a combobox : {value} - {xpath}.')
+        self.oDBLog.debug_log(f'Select a combobox : {value} - {xpath}.')
 
         return el
 
@@ -551,7 +542,7 @@ class SeleniumInstance:
         el = self.get_control(xpath)
         el.click()
 
-        self.add_tracking_log(f'Click to a button : {xpath}.')
+        self.oDBLog.debug_log(f'Click to a button : {xpath}.')
         
         return el
 
@@ -559,25 +550,22 @@ class SeleniumInstance:
         el = self.get_control(xpath)
         return el.text
 
-    def insert_to_dom(self, insert_dom):
-        self.webdriver.execute_script("document.innerHTML = <div id='aaaa'></div>")
-
-        return None
-
     def action_upload_file(self, xpath):
         self.action_waiting() #default waiting
         el = self.action_input_click(xpath)
         self.action_waiting() #default waiting
         el.send_keys(file)
+        self.oDBLog.debug_log(f'Click to a button upload file : {xpath}.')
 
         return None
 
     def action_autoit_upload_file(self, xpath, file):
         self.action_waiting() #default waiting
         el = self.action_input_click(xpath)
-        self.add_tracking_log(f'Click to a button upload file : {xpath}.')
+        self.oDBLog.debug_log(f'Click to a button upload file : {xpath}.')
         self.action_waiting() #default waiting
         self.autoit.win_popup_select_file(file)
+        self.oDBLog.debug_log(f'Select file with AutoIT.')
 
         '''
         for process in psutil.process_iter():
@@ -612,13 +600,13 @@ class SeleniumInstance:
             image_name='{0}.png'.format(datetime.now().strftime('%Y%m%d_%H%M%S_%f'))
             
         self.webdriver.save_screenshot("{0}/{1}".format(self.local_storage['screenshot'],image_name))
-        self.add_tracking_log(f'Create a screenshot : {image_name}.')
+        self.oDBLog.debug_log(f'Create a screenshot : {image_name}.')
 
         
         if upload_mode == True:
             cloud = Cloudinary()
             cloud.upload("{0}/{1}".format(self.local_storage['screenshot'],image_name))
-            self.add_tracking_log(f'Upload a screenshot : {image_name}.')
+            self.oDBLog.debug_log(f'Upload a screenshot : {image_name}.')
 
             return ''
 
@@ -769,23 +757,27 @@ class MySQL:
         
         return True
 
-class Logs:
+class DBLogs:
     def __init__(self):
         self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
-        self.execute_id = '-1'
 
-        return None
-
-    def set_execute_id(self, execute_id):
-        self.execute_id = execute_id
-
-    def insert_db_logs(self, message='', url=''):
-        execute_id = self.execute_id
+    def execute_log(self, execute_id='-1', message='', url=''):
         sql = f"""
             INSERT INTO t_execute_logs (t_execute_id, message, image_url)
             VALUE ('{execute_id}', '{message}', '{url}');
         """
         self.db.execute(sql)
+
+        return None
+
+    def debug_log(self, message=''):
+        sql = f"""
+            INSERT INTO t_debug_logs (t_execute_id, message, image_url)
+            VALUE ('{execute_id}', '{message}', '{url}');
+        """
+        self.db.execute(sql)
+
+        return None
 
 import pandas
 class Excel:
