@@ -35,6 +35,7 @@ from urllib.parse import urlencode
 from pathlib import Path
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 TMP_DIR = '{0}/tmp'.format(CURRENT_DIR)
+SELENIUM_DEBUG_CONST = '[SELENIUM-CORE] '
 DB_HOST = ''
 DB_USERNAME = 'root'
 DB_PASSWORD = ''
@@ -359,18 +360,19 @@ class SeleniumInstance:
                  , headless=False
                  , auto_detect_timeout=False
         ):
-
-        # Create base folder
-        self.init_folder(session)
         
         #Define variable
-        self.oDBLog = DBLogs()
+        self.dblogs = DBLogs()
         self.instance_random_string = uuid.uuid4()
         self.expected_condition_type = 'element_to_be_clickable'
         self.auto_screenshot = False
         self.time_sleep_waiting = 0.5 #seconds
         self.timeout_waiting = 30 #seconds
         self.time_retry_setting = 2 #5 lần
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create define variable')
+
+        # Create base folder
+        self.init_folder(session)
         self.local_storage = {
             'download' : self.download_dir,
             'screenshot' : self.screenshot_dir,
@@ -382,7 +384,7 @@ class SeleniumInstance:
             s.get_best_server()
             s.download()
             self.timeout_waiting = round(s.results.ping)
-            self.oDBLog.debug_log(f'Detect internet speed : {self.timeout_waiting}.')
+            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Detect internet speed : {self.timeout_waiting}')
             
         
         chrome_options = Options()
@@ -439,12 +441,7 @@ class SeleniumInstance:
         
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
-        self.oDBLog.debug_log(f'Create selenium instance.')
-
-    def set_core_log(self, oLog=None):
-        self.oLog = oLog
-
-        return None
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create selenium instance')
 
     def init_folder(self, session):
 
@@ -459,6 +456,8 @@ class SeleniumInstance:
             Path(self.download_dir).mkdir(parents=True, exist_ok=True)
             Path(self.screenshot_dir).mkdir(parents=True, exist_ok=True)
             Path(self.userdata_dir).mkdir(parents=True, exist_ok=True)
+
+            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create init folder')
 
     def set_expected_condition_type(self, val):
         self.expected_condition_type = val
@@ -480,7 +479,7 @@ class SeleniumInstance:
     def action_redirect(self, url):
         self.action_waiting() #default waiting
         self.webdriver.get(url)
-        self.oDBLog.debug_log(f'Redirect : {url}.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Redirect : {url}')
 
     def action_waiting(self, seconds=None):
         if seconds == None :
@@ -494,11 +493,11 @@ class SeleniumInstance:
     def action_switch_to_iframe(self, xpath):
         self.webdriver.switch_to.default_content()
         self.webdriver.switch_to.frame(self.get_control(xpath))
-        self.oDBLog.debug_log(f'Switch to iframe : {xpath}.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Switch to iframe : {xpath}')
 
     def action_switch_to_default(self):
         self.webdriver.switch_to.default_content()
-        self.oDBLog.debug_log(f'Switch to default content.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Switch to default content')
 
     def action_handle_alert_window(self):
         # .accept()
@@ -511,7 +510,7 @@ class SeleniumInstance:
         self.action_waiting() #default waiting
         el = self._find_by_xpath(xpath)
         el.send_keys(value)
-        self.oDBLog.debug_log(f'Add to a textbox : {value} - {xpath}.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Add to a textbox : {value} - {xpath}')
         
         return el
 
@@ -525,7 +524,7 @@ class SeleniumInstance:
         elif text != '':
             select.select_by_visible_text(text)
 
-        self.oDBLog.debug_log(f'Select a combobox : {value} - {xpath}.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Select a combobox : {value} - {xpath}')
 
         return el
 
@@ -542,7 +541,7 @@ class SeleniumInstance:
         el = self.get_control(xpath)
         el.click()
 
-        self.oDBLog.debug_log(f'Click to a button : {xpath}.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Click to a button : {xpath}')
         
         return el
 
@@ -555,17 +554,17 @@ class SeleniumInstance:
         el = self.action_input_click(xpath)
         self.action_waiting() #default waiting
         el.send_keys(file)
-        self.oDBLog.debug_log(f'Click to a button upload file : {xpath}.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Click to a button upload file : {xpath}')
 
         return None
 
     def action_autoit_upload_file(self, xpath, file):
         self.action_waiting() #default waiting
         el = self.action_input_click(xpath)
-        self.oDBLog.debug_log(f'Click to a button upload file : {xpath}.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Click to a button upload file : {xpath}')
         self.action_waiting() #default waiting
         self.autoit.win_popup_select_file(file)
-        self.oDBLog.debug_log(f'Select file with AutoIT.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Select file with AutoIT')
 
         '''
         for process in psutil.process_iter():
@@ -600,19 +599,20 @@ class SeleniumInstance:
             image_name='{0}.png'.format(datetime.now().strftime('%Y%m%d_%H%M%S_%f'))
             
         self.webdriver.save_screenshot("{0}/{1}".format(self.local_storage['screenshot'],image_name))
-        self.oDBLog.debug_log(f'Create a screenshot : {image_name}.')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create a screenshot : {image_name}')
 
         
         if upload_mode == True:
             cloud = Cloudinary()
             cloud.upload("{0}/{1}".format(self.local_storage['screenshot'],image_name))
-            self.oDBLog.debug_log(f'Upload a screenshot : {image_name}.')
+            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Upload a screenshot : {image_name}')
 
             return ''
 
         return None
 
     def action_check_exist_element(self, xpath):
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Check exist element')
         el = self._find_by_xpath(xpath, check_exist=True)
         if el == False:
             return False
@@ -632,6 +632,7 @@ class SeleniumInstance:
     def move_to_element(self, el):
         actions = ActionChains(self.webdriver)
         actions.move_to_element(el).perform()
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Scroll to element')
 
         return el
 
@@ -644,6 +645,7 @@ class SeleniumInstance:
             try:
                 if retry_time > 0:
                     print("Retry find element {0} : {1} ...".format(xpath, retry_time))
+                    self.dblogs.debug_log(f"{SELENIUM_DEBUG_CONST}Retry find element {xpath} : {retry_time} ...")
                     
                 #el = self.webdriver.find_element_by_xpath(xpath)
 
@@ -659,6 +661,7 @@ class SeleniumInstance:
             except:                        
                 
                 print('XPATH : {0} Not found.'.format(xpath))
+                self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}XPATH : {xpath} Not found')
                 retry_time += 1
 
                 if check_exist == True:
@@ -667,6 +670,7 @@ class SeleniumInstance:
                 elif retry_time >= self.time_retry_setting:
                     self.close()
                     sys.exit()
+                    self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Close program')
 
             finally:
                 self.expected_condition_type = 'element_to_be_clickable'
@@ -772,8 +776,8 @@ class DBLogs:
 
     def debug_log(self, message=''):
         sql = f"""
-            INSERT INTO t_debug_logs (t_execute_id, message, image_url)
-            VALUE ('{execute_id}', '{message}', '{url}');
+            INSERT INTO t_debug_logs (message)
+            VALUE ('{message}');
         """
         self.db.execute(sql)
 
