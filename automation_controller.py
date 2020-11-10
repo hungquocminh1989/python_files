@@ -27,19 +27,15 @@
 #pip install -r /path/to/requirements.txt
 #-----------------------------------------------------------------------------
 """
-
-#Import packages
-import sys, os, json, time, requests
-from datetime import datetime
-from urllib.parse import urlencode
+import os, sys
 
 #Import lib common
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(ROOT_DIR + '/lib')
 import common, automation
 
-#f1 = automation.FacebookInstance('http://192.168.99.100:4444')
-f1 = automation.FacebookInstance()
-#f1.profile()
-f1.login('', '')
-f1.post_to_page('https://mobile.facebook.com/1322105514589118')
+f1 = automation.FacebookInstance(username='',password='')
+f1.login()
+f1.post_to_page(page_url='https://mobile.facebook.com/1322105514589118', content='test', arr_images=['z:\\1.jpg', 'z:\\1.jpg'])
+f1.post_to_page(page_url='https://mobile.facebook.com/209702559749142', content='test', arr_images=['z:\\1.jpg', 'z:\\1.jpg'])
+f1.close()

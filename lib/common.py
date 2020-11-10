@@ -859,6 +859,7 @@ class AutoIT:
         self.autoit.WinWaitActive('Open')
         self.autoit.ControlFocus('Open','','[CLASS:Edit; INSTANCE:1]')
         self.autoit.Send(file)
+        self.autoit.Sleep(1000) #sleep 1s
         self.autoit.ControlClick('Open','','[CLASS:Button; INSTANCE:1]')
 
         return None
