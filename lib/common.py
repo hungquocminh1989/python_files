@@ -35,7 +35,7 @@ from urllib.parse import urlencode
 from pathlib import Path
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 TMP_DIR = '{0}/tmp'.format(CURRENT_DIR)
-SELENIUM_DEBUG_CONST = '[SELENIUM-CORE] '
+SELENIUM_DEBUG_CONST = '[CORE DEBUG] - '
 DB_HOST = ''
 DB_USERNAME = 'root'
 DB_PASSWORD = ''
@@ -363,7 +363,6 @@ class SeleniumInstance:
         
         #Define variable
         self.dblogs = DBLogs()
-        self.instance_random_string = uuid.uuid4()
         self.expected_condition_type = 'element_to_be_clickable'
         self.auto_screenshot = False
         self.time_sleep_waiting = 0.5 #seconds
@@ -700,6 +699,7 @@ class SeleniumInstance:
     def close(self):
         self.webdriver.close()
         self.webdriver.quit()
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Close program')
 
 import cloudinary
 class Cloudinary:
@@ -762,8 +762,10 @@ class MySQL:
         return True
 
 class DBLogs:
-    def __init__(self):
+    def __init__(self, disable=False):
         self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
+        self.disable = disable
+        self.session_id = uuid.uuid4()
 
     def execute_log(self, execute_id='-1', message='', url=''):
         sql = f"""
@@ -775,11 +777,12 @@ class DBLogs:
         return None
 
     def debug_log(self, message=''):
-        sql = f"""
-            INSERT INTO t_debug_logs (message)
-            VALUE ('{message}');
-        """
-        self.db.execute(sql)
+        if self.disable == False:
+            sql = f"""
+                INSERT INTO t_debug_logs (session_id, message)
+                VALUE ('{self.session_id}', '{message}');
+            """
+            self.db.execute(sql)
 
         return None
 
