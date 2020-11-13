@@ -34,7 +34,7 @@ from datetime import datetime
 from urllib.parse import urlencode
 from pathlib import Path
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
-TMP_DIR = '{0}/tmp'.format(CURRENT_DIR)
+TMP_DIR = f'{CURRENT_DIR}/tmp'
 SELENIUM_DEBUG_CONST = '[CORE DEBUG] - '
 DB_HOST = ''
 DB_USERNAME = 'root'
@@ -854,13 +854,21 @@ class AutoIT:
         self.autoit = win32com.client.Dispatch("AutoItX3.Control")
 
     def win_popup_select_file(self, file):
+        currenttext = ''
         self.autoit.WinSetState('Open','',self.autoit.SW_HIDE)
-        self.autoit.WinActivate('Open')
-        self.autoit.WinWaitActive('Open')
-        self.autoit.ControlFocus('Open','','[CLASS:Edit; INSTANCE:1]')
-        self.autoit.Send(file)
-        self.autoit.Sleep(1000) #sleep 1s
+        while currenttext != file:
+            self.autoit.WinActivate('Open')
+            self.autoit.WinWaitActive('Open')
+            self.autoit.ControlFocus('Open','','[CLASS:Edit; INSTANCE:1]')
+            self.autoit.Send('') #Clear text
+            self.autoit.Send(file)
+            self.autoit.Sleep(1000) #sleep 1s
+            self.autoit.ControlFocus('Open','','[CLASS:Button; INSTANCE:1]')
+            currenttext = self.autoit.ControlGetText('Open','','[CLASS:Edit; INSTANCE:1]')
+            
+
         self.autoit.ControlClick('Open','','[CLASS:Button; INSTANCE:1]')
+        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Selected file upload')
 
         return None
 

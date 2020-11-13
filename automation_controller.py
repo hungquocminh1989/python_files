@@ -36,6 +36,6 @@ import common, automation
 
 f1 = automation.FacebookInstance(username='',password='')
 f1.login()
-f1.post_to_page(page_url='https://mobile.facebook.com/1322105514589118', content='test', arr_images=['z:\\1.jpg', 'z:\\1.jpg'])
-f1.post_to_page(page_url='https://mobile.facebook.com/209702559749142', content='test', arr_images=['z:\\1.jpg', 'z:\\1.jpg'])
+f1.post_to_page(page_url='https://mobile.facebook.com/1322105514589118', content='test', arr_images=['https://res.cloudinary.com/minty/image/upload/v1591005850/sample.jpg'])
+f1.post_to_page(page_url='https://mobile.facebook.com/209702559749142', content='test', arr_images=['https://res.cloudinary.com/minty/image/upload/v1591005850/sample.jpg'])
 f1.close()
