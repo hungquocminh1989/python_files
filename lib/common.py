@@ -347,6 +347,7 @@ import pickle, time, uuid, speedtest #https://pypi.org/project/speedtest-cli/
 import psutil
 from contextlib import suppress
 from pywinauto.application import Application #https://zakovinko.com/blog/2016/upload-files-with-selenium-windows-version/
+from shutil import copyfile
 
 class SeleniumInstance:
 
@@ -359,19 +360,20 @@ class SeleniumInstance:
                  , session='_default'
                  , headless=False
                  , auto_detect_timeout=False
+                 , temp_user_data = False
         ):
         
         #Define variable
         self.dblogs = DBLogs()
         self.expected_condition_type = 'element_to_be_clickable'
         self.auto_screenshot = False
-        self.time_sleep_waiting = 0.5 #seconds
+        self.time_sleep_waiting = 1 #seconds
         self.timeout_waiting = 30 #seconds
         self.time_retry_setting = 2 #5 lần
         self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create define variable')
 
         # Create base folder
-        self.init_folder(session)
+        self.init_folder(session, temp_user_data)
         self.local_storage = {
             'download' : self.download_dir,
             'screenshot' : self.screenshot_dir,
@@ -387,7 +389,7 @@ class SeleniumInstance:
             
         
         chrome_options = Options()
-        chrome_options.add_argument("--start-maximized")
+        #chrome_options.add_argument("--start-maximized")
         prefs = {
                 "download.default_directory" : self.local_storage['download']
         }
@@ -397,7 +399,7 @@ class SeleniumInstance:
             chrome_options.add_argument('--headless')
 
         if(session != False):
-            chrome_options.add_argument("user-data-dir={0}".format(self.userdata_dir)) #Path to your chrome profile
+            chrome_options.add_argument(f"user-data-dir={self.userdata_dir}") #Path to your chrome profile
         
         #chrome_options.add_argument("--headless")
         #chrome_options.add_argument("--disable-infobars")
@@ -440,16 +442,20 @@ class SeleniumInstance:
         
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
+        self.current_window_handle = self.webdriver.current_window_handle
         self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create selenium instance')
 
-    def init_folder(self, session):
+    def init_folder(self, session, temp_user_data):
 
         if session != False:
             
             # Define folder
-            self.download_dir = '{0}/Selenium_Storage/{1}/Downloads'.format(TMP_DIR, session)
-            self.screenshot_dir = '{0}/Selenium_Storage/{1}/Screenshots'.format(TMP_DIR, session)
-            self.userdata_dir = '{0}/Selenium_Storage/{1}/UserData'.format(TMP_DIR, session)
+            self.download_dir = f'{TMP_DIR}/Selenium_Storage/{session}/Downloads'
+            self.screenshot_dir = f'{TMP_DIR}/Selenium_Storage/{session}/Screenshots'
+            self.userdata_dir = f'{TMP_DIR}/Selenium_Storage/{session}/UserData'
+
+            if temp_user_data == True:
+                self.userdata_dir = f'{TMP_DIR}/Selenium_Storage/{session}/UserData_{self.dblogs.session_id}'
 
             # Create folder
             Path(self.download_dir).mkdir(parents=True, exist_ok=True)
@@ -457,6 +463,11 @@ class SeleniumInstance:
             Path(self.userdata_dir).mkdir(parents=True, exist_ok=True)
 
             self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create init folder')
+
+    def active_current_window(self):
+        self.webdriver.switch_to_window(self.current_window_handle)
+    
+        return None
 
     def set_expected_condition_type(self, val):
         self.expected_condition_type = val
@@ -488,6 +499,8 @@ class SeleniumInstance:
 
         if self.auto_screenshot == True:
             self.action_screenshot()
+
+        #self.active_current_window()
 
     def action_switch_to_iframe(self, xpath):
         self.webdriver.switch_to.default_content()
@@ -545,6 +558,7 @@ class SeleniumInstance:
         return el
 
     def action_get_text(self, xpath):
+        self.action_waiting() #default waiting
         el = self.get_control(xpath)
         return el.text
 
@@ -558,40 +572,28 @@ class SeleniumInstance:
         return None
 
     def action_autoit_upload_file(self, xpath, file):
-        self.action_waiting() #default waiting
-        el = self.action_input_click(xpath)
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Click to a button upload file : {xpath}')
-        self.action_waiting() #default waiting
-        self.autoit.win_popup_select_file(file)
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Select file with AutoIT')
 
-        '''
-        for process in psutil.process_iter():
-            if process.name() == 'chrome.exe' and '--test-type=webdriver' in process.cmdline():
-                with suppress(psutil.NoSuchProcess):
-                    print(process.pid)
-        '''
+        file_exist = False
 
-        '''
-        process = psutil.Process(self.webdriver.service.process.pid)
-        print(self.webdriver.service.process.pid)
-        print(process)
-        print(process.children()[0].pid)
-        #print(process.get_children(recursive=True))
-        for i in range(20):
-            app = Application()
-            app.connect(process=process.children()[0].pid)  # connect to browser
-            dialog = app.top_window()           # get active top window (Open dialog)
-            if not dialog.Edit.Exists():         # check if Edit field is exists
-                print(111)
-                time.sleep(1)                    # if no do again in 1 second (waiting for dialog after click)
-                continue
-            dialog.Edit.TypeKeys(file)   # put file path
-            dialog['&OpenButton'].Click()               # click Open button
-            return
-        '''
+        file_check = Path(file)
+        if file_check.is_file():
+            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Check exist file OK : {file}')
+            file_exist = True
+        elif requests.get(file).status_code == 200:
+            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Check exist url OK : {file}')
+            file_exist = True
+        
+        if file_exist == True:
+            self.action_waiting() #default waiting
+            el = self.action_input_click(xpath)
+            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Click to a button upload file : {xpath}')
+            self.action_waiting() #default waiting
+            self.autoit.win_popup_select_file(file)
+            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Select file with AutoIT')
 
-        return el
+            return el
+
+        return False
 
     def action_screenshot(self, image_name='', upload_mode=False):
         if image_name == '':
@@ -697,6 +699,7 @@ class SeleniumInstance:
     '''
 
     def close(self):
+        self.action_waiting(5)
         self.webdriver.close()
         self.webdriver.quit()
         self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Close program')
@@ -856,19 +859,17 @@ class AutoIT:
     def win_popup_select_file(self, file):
         currenttext = ''
         self.autoit.WinSetState('Open','',self.autoit.SW_HIDE)
-        while currenttext != file:
+        self.autoit.WinActivate('Open')
+        while currenttext != file or self.autoit.WinActive('Open') == 0:
             self.autoit.WinActivate('Open')
             self.autoit.WinWaitActive('Open')
-            self.autoit.ControlFocus('Open','','[CLASS:Edit; INSTANCE:1]')
-            self.autoit.Send('') #Clear text
-            self.autoit.Send(file)
-            self.autoit.Sleep(1000) #sleep 1s
-            self.autoit.ControlFocus('Open','','[CLASS:Button; INSTANCE:1]')
+            self.autoit.ControlSetText('Open','','[CLASS:Edit; INSTANCE:1]', file)
             currenttext = self.autoit.ControlGetText('Open','','[CLASS:Edit; INSTANCE:1]')
             
-
+        while self.autoit.WinActive('Open') == 0:
+            self.autoit.WinActivate('Open')
+            
         self.autoit.ControlClick('Open','','[CLASS:Button; INSTANCE:1]')
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Selected file upload')
 
         return None
 

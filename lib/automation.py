@@ -30,8 +30,9 @@
 import common
 
 class FacebookInstance:
-    def __init__(self, username, password, remote_url=''):
+    def __init__(self, username, password, remote_url='', temp_user_data=False):
         self.remote_url = remote_url
+        self.temp_user_data = temp_user_data
         self.username = username
         self.user_debug_const = f'[{username} DEBUG] - '
         self.password = password
@@ -39,7 +40,7 @@ class FacebookInstance:
         self.init_web_url()
 
     def init_web_instance(self):
-        self.browser = common.SeleniumInstance(remote_url=self.remote_url,session=f'Facebook_{self.username}', auto_detect_timeout=True)
+        self.browser = common.SeleniumInstance(remote_url=self.remote_url,session=f'Facebook_{self.username}', auto_detect_timeout=True, temp_user_data=self.temp_user_data)
         self.browser.enable_auto_screenshot()
         self.browser.dblogs.debug_log(f'{self.user_debug_const}Object created')
 
@@ -73,6 +74,8 @@ class FacebookInstance:
             
             self.browser.action_input_click('//*[@id="u_0_4"]/button')
             self.browser.dblogs.debug_log(f'{self.user_debug_const}Click login button')
+
+            self.browser.action_waiting(2)
 
         return None
 
