@@ -30,18 +30,18 @@
 import common
 
 class FacebookInstance:
-    def __init__(self, username, password, remote_url='', temp_user_data=False):
-        self.remote_url = remote_url
-        self.temp_user_data = temp_user_data
+    def __init__(self, username, password, dynamic_user_data=False):
+        self.dynamic_user_data = dynamic_user_data
         self.username = username
         self.user_debug_const = f'[{username} DEBUG] - '
         self.password = password
         self.init_web_instance()
         self.init_web_url()
+        self.cloudinary = common.Cloudinary(cloud_name='minty', api_key='826583412123261', api_secret='Sa3_O7wQUNvwnQELh8U313D5IvQ')
 
     def init_web_instance(self):
-        self.browser = common.SeleniumInstance(remote_url=self.remote_url,session=f'Facebook_{self.username}', auto_detect_timeout=True, temp_user_data=self.temp_user_data)
-        self.browser.enable_auto_screenshot()
+        self.browser = common.SeleniumInstance(session=f'Facebook_{self.username}', auto_detect_timeout=True, dynamic_user_data=self.dynamic_user_data)
+        #self.browser.enable_auto_screenshot()
         self.browser.dblogs.debug_log(f'{self.user_debug_const}Object created')
 
     def init_web_url(self):
@@ -99,7 +99,7 @@ class FacebookInstance:
         self.browser.dblogs.debug_log(f'{self.user_debug_const}Input post content')
         
         for image in arr_images:
-            self.browser.action_autoit_upload_file('//*[@id="structured_composer_form"]/div[5]/div/div[1]/button[1]',image)
+            self.browser.action_autoit_upload_file('//*[@id="structured_composer_form"]/div[5]/div/div[1]/button[1]',self.browser.action_download_file(image))
             self.browser.dblogs.debug_log(f'{self.user_debug_const}Select and upload file image : {image}')
             
         self.browser.action_input_click('//*[@id="composer-main-view-id"]/div[1]/div/div[3]/div/button[1]')

@@ -33,7 +33,7 @@ import sys, os, json, requests, pycurl, certifi
 from datetime import datetime
 from urllib.parse import urlencode
 from pathlib import Path
-CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
+CURRENT_DIR = os.path.abspath(os.path.dirname(__file__)).replace(os.sep, '/')
 TMP_DIR = f'{CURRENT_DIR}/tmp'
 SELENIUM_DEBUG_CONST = '[CORE DEBUG] - '
 DB_HOST = ''
@@ -345,9 +345,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 import pickle, time, uuid, speedtest #https://pypi.org/project/speedtest-cli/
 import psutil
+import urllib.request
 from contextlib import suppress
 from pywinauto.application import Application #https://zakovinko.com/blog/2016/upload-files-with-selenium-windows-version/
 from shutil import copyfile
+from pathlib import Path
 
 class SeleniumInstance:
 
@@ -360,7 +362,7 @@ class SeleniumInstance:
                  , session='_default'
                  , headless=False
                  , auto_detect_timeout=False
-                 , temp_user_data = False
+                 , dynamic_user_data = False
         ):
         
         #Define variable
@@ -373,7 +375,7 @@ class SeleniumInstance:
         self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create define variable')
 
         # Create base folder
-        self.init_folder(session, temp_user_data)
+        self.init_folder(session, dynamic_user_data)
         self.local_storage = {
             'download' : self.download_dir,
             'screenshot' : self.screenshot_dir,
@@ -445,7 +447,7 @@ class SeleniumInstance:
         self.current_window_handle = self.webdriver.current_window_handle
         self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create selenium instance')
 
-    def init_folder(self, session, temp_user_data):
+    def init_folder(self, session, dynamic_user_data):
 
         if session != False:
             
@@ -454,7 +456,7 @@ class SeleniumInstance:
             self.screenshot_dir = f'{TMP_DIR}/Selenium_Storage/{session}/Screenshots'
             self.userdata_dir = f'{TMP_DIR}/Selenium_Storage/{session}/UserData'
 
-            if temp_user_data == True:
+            if dynamic_user_data == True:
                 self.userdata_dir = f'{TMP_DIR}/Selenium_Storage/{session}/UserData_{self.dblogs.session_id}'
 
             # Create folder
@@ -486,6 +488,15 @@ class SeleniumInstance:
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
 
+    def action_download_file(self, url):
+        ext_arr = Path(url).suffixes
+        file_ext = ext_arr[len(ext_arr)-1]
+        image_name='{0}{1}'.format(datetime.now().strftime('%Y%m%d_%H%M%S_%f'), file_ext)
+        download_path = f"{self.local_storage['download']}/{image_name}"
+        urllib.request.urlretrieve(url, download_path)
+
+        return download_path
+
     def action_redirect(self, url):
         self.action_waiting() #default waiting
         self.webdriver.get(url)
@@ -500,7 +511,7 @@ class SeleniumInstance:
         if self.auto_screenshot == True:
             self.action_screenshot()
 
-        #self.active_current_window()
+        self.active_current_window()
 
     def action_switch_to_iframe(self, xpath):
         self.webdriver.switch_to.default_content()
@@ -578,6 +589,7 @@ class SeleniumInstance:
         file_check = Path(file)
         if file_check.is_file():
             self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Check exist file OK : {file}')
+            file = file.replace('/', os.sep)
             file_exist = True
         elif requests.get(file).status_code == 200:
             self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Check exist url OK : {file}')
@@ -704,23 +716,24 @@ class SeleniumInstance:
         self.webdriver.quit()
         self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Close program')
 
-import cloudinary
+import cloudinary.uploader
 class Cloudinary:
     
     def __init__(self, cloud_name, api_key, api_secret):
-        cloudinary.config( 
+        self.cloudinary = cloudinary
+        self.cloudinary.config( 
             cloud_name = cloud_name,
             api_key = api_key, 
             api_secret = api_secret 
         )
 
     def upload(self, url):
-        result = cloudinary.uploader.upload(url)
+        result = self.cloudinary.uploader.upload(url)
 
         return result
 
     def destroy(self, public_id):
-        result = cloudinary.uploader.destroy(public_id)
+        result = self.cloudinary.uploader.destroy(public_id)
 
         return result
 
@@ -729,7 +742,7 @@ class Cloudinary:
         if len(attachments) > 0:
             for i in range(len(attachments)):
                 result = self.upload(attachments[i])
-                cloudinary_images[result['public_id']] = result['secure_url']
+                self.cloudinary_images[result['public_id']] = result['secure_url']
 
         return cloudinary_images
 
@@ -872,6 +885,37 @@ class AutoIT:
         self.autoit.ControlClick('Open','','[CLASS:Button; INSTANCE:1]')
 
         return None
+
+class ExecuteAutomation:
+    def __init__(self):
+        self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
+
+    def execute_queue(self):
+        sql = """
+            SELECT e.id, p.*
+            FROM t_execute AS e
+            INNER JOIN wp_product AS p
+                ON e.wp_product_id = p.id
+                    AND p.del_flg = 0
+            WHERE e.del_flg = 0
+                AND e.status = 0
+            LIMIT 1
+        """
+        r = self.db.query(sql)
+
+        return r
+
+    def complete_queue(self, t_execute_id):
+
+        sql = f"""
+            UPDATE t_execute
+            SET status = 9
+            WHERE status = 1 AND id = {t_execute_id}
+        """
+        self.db.execute(sql)
+        
+        return None
+        
 
         
 
