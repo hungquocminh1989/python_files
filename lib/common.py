@@ -29,20 +29,30 @@
 """
 
 #Import packages
-import sys, os, json, requests, pycurl, certifi
+import sys, os, json, requests, pycurl, certifi, logging, configparser
 from datetime import datetime
 from urllib.parse import urlencode
 from pathlib import Path
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__)).replace(os.sep, '/')
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
 TMP_DIR = f'{CURRENT_DIR}/tmp'
-SELENIUM_DEBUG_CONST = '[CORE DEBUG] - '
-DB_HOST = ''
-DB_USERNAME = 'root'
-DB_PASSWORD = ''
-DB_PORT = 8989
-DB_NAME = 'pytest'
+SELENIUM_DEBUG_CONST = config['SELENIUM']['DEBUG_CONST']
+DB_HOST = config['MYSQL']['HOST']
+DB_USERNAME = config['MYSQL']['USERNAME']
+DB_PASSWORD = config['MYSQL']['PASSWORD']
+DB_PORT = config['MYSQL']['PORT']
+DB_NAME = config['MYSQL']['NAME']
 
 class Shared:
+    def load_config(self):
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+
+        return config
+    
     def curl(self, method, url, data = None, headers = None):
 
         crl = pycurl.Curl()
@@ -801,6 +811,42 @@ class DBLogs:
             self.db.execute(sql)
 
         return None
+
+class Logs:
+    def __init__(self, file_log='tmp.log'):
+        self.logger = self.create_logger(file_log)
+
+    def create_logger(self, file_log):
+
+        #https://docs.python.org/3/library/logging.html#logging.Formatter
+        asctime = '%(asctime)s'
+        levelname = '%(levelname)s'
+        pathname  = '%(pathname)s'
+        lineno = '%(lineno)d'
+        funcName = '%(funcName)s'
+        message = '%(message)s'
+        
+        log_content_format = logging.Formatter(f'[{asctime}] - [{levelname}] - {message} - [ Function: {funcName}, Line: {lineno} , File: "{pathname}" ]')
+
+        #Create main logger
+        logger = logging.getLogger('main')
+
+        #Create file handler
+        file_handler = logging.FileHandler(f'{TMP_DIR}/{file_log}')
+        file_handler.setFormatter(log_content_format)
+        
+        #Create console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(log_content_format)
+        
+        #Add handler
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
+
+        #Set logging level
+        logger.setLevel(logging.DEBUG) # DEBUG < INFO < WARNING < ERROR < CRITICAL
+
+        return logger
 
 import pandas
 class Excel:
