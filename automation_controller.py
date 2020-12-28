@@ -36,8 +36,8 @@ import common, automation
 import cloudinary.uploader
 
 def f1():
-    self.config = Config().load_config()
-    f1 = automation.FacebookInstance(username=self.config['FACEBOOK_INFO']['USERNAME'],password=self.config['FACEBOOK_INFO']['PASSWORD'])
+    config = common.Config().load_config()
+    f1 = automation.FacebookInstance(username=config['FACEBOOK_INFO']['USERNAME'],password=config['FACEBOOK_INFO']['PASSWORD'])
     f1.login()
     f1.post_to_page(page_url='https://mobile.facebook.com/1322105514589118', content='post1', arr_images=['https://res.cloudinary.com/minty/image/upload/v1591005850/sample.jpg'])
     f1.close()

@@ -31,7 +31,7 @@ import common
 
 class FacebookInstance:
     def __init__(self, username, password, dynamic_user_data=False):
-        self.config = Config().load_config()
+        self.config = common.Config().load_config()
         self.dynamic_user_data = dynamic_user_data
         self.username = username
         self.user_debug_const = f'[{username} DEBUG] - '

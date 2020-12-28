@@ -34,11 +34,12 @@ from datetime import datetime
 from urllib.parse import urlencode
 from pathlib import Path
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__)).replace(os.sep, '/')
+TMP_DIR = f'{CURRENT_DIR}/tmp'
 
 class Config:
     def load_config(self):
         config = configparser.ConfigParser()
-        config.read('config.ini')
+        config.read(f'{CURRENT_DIR}/config.ini')
 
         return config
 
@@ -367,14 +368,14 @@ class SeleniumInstance:
         
         #Define variable
         self.config = Config().load_config()
-        SELENIUM_DEBUG_CONST = self.config['SELENIUM']['DEBUG_CONST']
+        self.SELENIUM_DEBUG_CONST = self.config['SELENIUM']['DEBUG_CONST']
         self.dblogs = DBLogs()
         self.expected_condition_type = 'element_to_be_clickable'
         self.auto_screenshot = False
         self.time_sleep_waiting = 1 #seconds
         self.timeout_waiting = 30 #seconds
         self.time_retry_setting = 2 #5 lần
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create define variable')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Create define variable')
 
         # Create base folder
         self.init_folder(session, dynamic_user_data)
@@ -389,7 +390,7 @@ class SeleniumInstance:
             s.get_best_server()
             s.download()
             self.timeout_waiting = round(s.results.ping)
-            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Detect internet speed : {self.timeout_waiting}')
+            self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Detect internet speed : {self.timeout_waiting}')
             
         
         chrome_options = Options()
@@ -447,7 +448,7 @@ class SeleniumInstance:
         #Implicit wait là khoảng thời gian chờ khi không tìm thấy đối tượng trên web (Apply cho toàn bộ đối tượng web)
         self.webdriver.implicitly_wait(self.timeout_waiting) #seconds
         self.current_window_handle = self.webdriver.current_window_handle
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create selenium instance')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Create selenium instance')
 
     def init_folder(self, session, dynamic_user_data):
 
@@ -466,7 +467,7 @@ class SeleniumInstance:
             Path(self.screenshot_dir).mkdir(parents=True, exist_ok=True)
             Path(self.userdata_dir).mkdir(parents=True, exist_ok=True)
 
-            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create init folder')
+            self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Create init folder')
 
     def active_current_window(self):
         self.webdriver.switch_to_window(self.current_window_handle)
@@ -502,7 +503,7 @@ class SeleniumInstance:
     def action_redirect(self, url):
         self.action_waiting() #default waiting
         self.webdriver.get(url)
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Redirect : {url}')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Redirect : {url}')
 
     def action_waiting(self, seconds=None):
         if seconds == None :
@@ -518,11 +519,11 @@ class SeleniumInstance:
     def action_switch_to_iframe(self, xpath):
         self.webdriver.switch_to.default_content()
         self.webdriver.switch_to.frame(self.get_control(xpath))
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Switch to iframe : {xpath}')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Switch to iframe : {xpath}')
 
     def action_switch_to_default(self):
         self.webdriver.switch_to.default_content()
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Switch to default content')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Switch to default content')
 
     def action_handle_alert_window(self):
         # .accept()
@@ -535,7 +536,7 @@ class SeleniumInstance:
         self.action_waiting() #default waiting
         el = self._find_by_xpath(xpath)
         el.send_keys(value)
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Add to a textbox : {value} - {xpath}')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Add to a textbox : {value} - {xpath}')
         
         return el
 
@@ -549,7 +550,7 @@ class SeleniumInstance:
         elif text != '':
             select.select_by_visible_text(text)
 
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Select a combobox : {value} - {xpath}')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Select a combobox : {value} - {xpath}')
 
         return el
 
@@ -566,7 +567,7 @@ class SeleniumInstance:
         el = self.get_control(xpath)
         el.click()
 
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Click to a button : {xpath}')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Click to a button : {xpath}')
         
         return el
 
@@ -580,7 +581,7 @@ class SeleniumInstance:
         el = self.action_input_click(xpath)
         self.action_waiting() #default waiting
         el.send_keys(file)
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Click to a button upload file : {xpath}')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Click to a button upload file : {xpath}')
 
         return None
 
@@ -590,20 +591,20 @@ class SeleniumInstance:
 
         file_check = Path(file)
         if file_check.is_file():
-            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Check exist file OK : {file}')
+            self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Check exist file OK : {file}')
             file = file.replace('/', os.sep)
             file_exist = True
         elif requests.get(file).status_code == 200:
-            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Check exist url OK : {file}')
+            self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Check exist url OK : {file}')
             file_exist = True
         
         if file_exist == True:
             self.action_waiting() #default waiting
             el = self.action_input_click(xpath)
-            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Click to a button upload file : {xpath}')
+            self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Click to a button upload file : {xpath}')
             self.action_waiting() #default waiting
             self.autoit.win_popup_select_file(file)
-            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Select file with AutoIT')
+            self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Select file with AutoIT')
 
             return el
 
@@ -614,20 +615,20 @@ class SeleniumInstance:
             image_name='{0}.png'.format(datetime.now().strftime('%Y%m%d_%H%M%S_%f'))
             
         self.webdriver.save_screenshot("{0}/{1}".format(self.local_storage['screenshot'],image_name))
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Create a screenshot : {image_name}')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Create a screenshot : {image_name}')
 
         
         if upload_mode == True:
             cloud = Cloudinary()
             cloud.upload("{0}/{1}".format(self.local_storage['screenshot'],image_name))
-            self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Upload a screenshot : {image_name}')
+            self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Upload a screenshot : {image_name}')
 
             return ''
 
         return None
 
     def action_check_exist_element(self, xpath):
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Check exist element')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Check exist element')
         el = self._find_by_xpath(xpath, check_exist=True)
         if el == False:
             return False
@@ -647,7 +648,7 @@ class SeleniumInstance:
     def move_to_element(self, el):
         actions = ActionChains(self.webdriver)
         actions.move_to_element(el).perform()
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Scroll to element')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Scroll to element')
 
         return el
 
@@ -660,7 +661,7 @@ class SeleniumInstance:
             try:
                 if retry_time > 0:
                     print("Retry find element {0} : {1} ...".format(xpath, retry_time))
-                    self.dblogs.debug_log(f"{SELENIUM_DEBUG_CONST}Retry find element {xpath} : {retry_time} ...")
+                    self.dblogs.debug_log(f"{self.SELENIUM_DEBUG_CONST}Retry find element {xpath} : {retry_time} ...")
                     
                 #el = self.webdriver.find_element_by_xpath(xpath)
 
@@ -676,7 +677,7 @@ class SeleniumInstance:
             except:                        
                 
                 print('XPATH : {0} Not found.'.format(xpath))
-                self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}XPATH : {xpath} Not found')
+                self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}XPATH : {xpath} Not found')
                 retry_time += 1
 
                 if check_exist == True:
@@ -685,7 +686,7 @@ class SeleniumInstance:
                 elif retry_time >= self.time_retry_setting:
                     self.close()
                     sys.exit()
-                    self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Close program')
+                    self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Close program')
 
             finally:
                 self.expected_condition_type = 'element_to_be_clickable'
@@ -716,7 +717,7 @@ class SeleniumInstance:
         self.action_waiting(5)
         self.webdriver.close()
         self.webdriver.quit()
-        self.dblogs.debug_log(f'{SELENIUM_DEBUG_CONST}Close program')
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Close program')
 
 import cloudinary.uploader
 class Cloudinary:
