@@ -31,6 +31,7 @@ import common
 
 class FacebookInstance:
     def __init__(self, username, password, dynamic_user_data=False):
+        self.config = Config().load_config()
         self.dynamic_user_data = dynamic_user_data
         self.username = username
         self.user_debug_const = f'[{username} DEBUG] - '
@@ -45,9 +46,9 @@ class FacebookInstance:
         self.browser.dblogs.debug_log(f'{self.user_debug_const}Object created')
 
     def init_web_url(self):
-        self.profile_url = 'https://mobile.facebook.com/profile'
-        self.home_url = 'https://mobile.facebook.com/home.php'
-        self.login_url = 'https://mobile.facebook.com/login.php'
+        self.profile_url = self.config['FACEBOOK_URL']['PROFILE_URL']
+        self.home_url = self.config['FACEBOOK_URL']['HOME_URL']
+        self.login_url = self.config['FACEBOOK_URL']['LOGIN_URL']
 
     def newfeeds(self):
         self.browser.action_redirect(self.home_url)
@@ -66,13 +67,13 @@ class FacebookInstance:
             self.browser.action_redirect(self.login_url)
             self.browser.dblogs.debug_log(f'{self.user_debug_const}Redirect to login : {self.login_url}')
             
-            self.browser.action_input_text('//*[@id="m_login_email"]', self.username)
+            self.browser.action_input_text(self.config['FACEBOOK_XPATH']['EMAIL'], self.username)
             self.browser.dblogs.debug_log(f'{self.user_debug_const}Input username')
             
-            self.browser.action_input_text('//*[@id="m_login_password"]', self.password)
+            self.browser.action_input_text(self.config['FACEBOOK_XPATH']['PASSWORD'], self.password)
             self.browser.dblogs.debug_log(f'{self.user_debug_const}Input password')
             
-            self.browser.action_input_click('//*[@id="u_0_4"]/button')
+            self.browser.action_input_click(self.config['FACEBOOK_XPATH']['BUTTON_LOGIN'])
             self.browser.dblogs.debug_log(f'{self.user_debug_const}Click login button')
 
             self.browser.action_waiting(2)
@@ -81,7 +82,7 @@ class FacebookInstance:
 
     def check_login_status(self):
         self.profile()
-        exist = self.browser.action_check_exist_element('//*[@id="m_login_email"]')
+        exist = self.browser.action_check_exist_element(self.config['FACEBOOK_XPATH']['EMAIL'])
         self.browser.dblogs.debug_log(f'{self.user_debug_const}Check login status')
         if exist == False:
             return True
@@ -92,17 +93,17 @@ class FacebookInstance:
         self.browser.action_redirect(page_url)
         self.browser.dblogs.debug_log(f'{self.user_debug_const}Redirect to : {page_url}')
         
-        self.browser.action_input_click('//*[@id="action_bar"]/div[1]/a')
+        self.browser.action_input_click(self.config['FACEBOOK_XPATH']['BUTTON_CREATE_POST'])
         self.browser.dblogs.debug_log(f'{self.user_debug_const}Click button create new post')
         
-        self.browser.action_input_text('/html/body/div[2]/div[1]/div/div[6]/div[5]/form/div[1]/textarea', content)
+        self.browser.action_input_text(self.config['FACEBOOK_XPATH']['TEXTBOX_CONTENT_POST'], content)
         self.browser.dblogs.debug_log(f'{self.user_debug_const}Input post content')
         
         for image in arr_images:
-            self.browser.action_autoit_upload_file('//*[@id="structured_composer_form"]/div[5]/div/div[1]/button[1]',self.browser.action_download_file(image))
+            self.browser.action_autoit_upload_file(self.config['FACEBOOK_XPATH']['BUTTON_UPLOAD_IMAGE_POST'],self.browser.action_download_file(image))
             self.browser.dblogs.debug_log(f'{self.user_debug_const}Select and upload file image : {image}')
             
-        self.browser.action_input_click('//*[@id="composer-main-view-id"]/div[1]/div/div[3]/div/button[1]')
+        self.browser.action_input_click(self.config['FACEBOOK_XPATH']['BUTTON_PUBLISH_POST'])
         self.browser.dblogs.debug_log(f'{self.user_debug_const}Click button post')
 
         return None

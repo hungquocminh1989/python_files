@@ -35,24 +35,14 @@ from urllib.parse import urlencode
 from pathlib import Path
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__)).replace(os.sep, '/')
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-TMP_DIR = f'{CURRENT_DIR}/tmp'
-SELENIUM_DEBUG_CONST = config['SELENIUM']['DEBUG_CONST']
-DB_HOST = config['MYSQL']['HOST']
-DB_USERNAME = config['MYSQL']['USERNAME']
-DB_PASSWORD = config['MYSQL']['PASSWORD']
-DB_PORT = config['MYSQL']['PORT']
-DB_NAME = config['MYSQL']['NAME']
-
-class Shared:
+class Config:
     def load_config(self):
         config = configparser.ConfigParser()
         config.read('config.ini')
 
         return config
-    
+
+class Shared:    
     def curl(self, method, url, data = None, headers = None):
 
         crl = pycurl.Curl()
@@ -376,6 +366,8 @@ class SeleniumInstance:
         ):
         
         #Define variable
+        self.config = Config().load_config()
+        SELENIUM_DEBUG_CONST = self.config['SELENIUM']['DEBUG_CONST']
         self.dblogs = DBLogs()
         self.expected_condition_type = 'element_to_be_clickable'
         self.auto_screenshot = False
@@ -789,7 +781,8 @@ class MySQL:
 
 class DBLogs:
     def __init__(self, disable=False):
-        self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
+        self.config = Config().load_config()
+        self.db = MySQL(self.config['MYSQL']['HOST'], self.config['MYSQL']['DB_NAME'], self.config['MYSQL']['USERNAME'], self.config['MYSQL']['PASSWORD'], self.config['MYSQL']['PORT'])
         self.disable = disable
         self.session_id = uuid.uuid4()
 
@@ -874,7 +867,8 @@ class Excel:
 class ImportExcelToDB:
 
     def __init__(self):
-        self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
+        self.config = Config().load_config()
+        self.db = MySQL(self.config['MYSQL']['HOST'], self.config['MYSQL']['DB_NAME'], self.config['MYSQL']['USERNAME'], self.config['MYSQL']['PASSWORD'], self.config['MYSQL']['PORT'])
 
     def import_master(self, file):
         xls = Excel()
@@ -934,7 +928,8 @@ class AutoIT:
 
 class ExecuteAutomation:
     def __init__(self):
-        self.db = MySQL(DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_PORT)
+        self.config = Config().load_config()
+        self.db = MySQL(self.config['MYSQL']['HOST'], self.config['MYSQL']['DB_NAME'], self.config['MYSQL']['USERNAME'], self.config['MYSQL']['PASSWORD'], self.config['MYSQL']['PORT'])
 
     def execute_queue(self):
         sql = """
