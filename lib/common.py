@@ -364,25 +364,29 @@ class SeleniumInstance:
                  , headless=False
                  , auto_detect_timeout=False
                  , dynamic_user_data = False
+                 , log_file = 'selenium.log'
         ):
-        
-        #Define variable
-        self.config = Config().load_config()
-        self.SELENIUM_DEBUG_CONST = self.config['SELENIUM']['DEBUG_CONST']
-        self.dblogs = DBLogs()
-        self.expected_condition_type = 'element_to_be_clickable'
-        self.auto_screenshot = False
-        self.time_sleep_waiting = 1 #seconds
-        self.timeout_waiting = 30 #seconds
-        self.time_retry_setting = 2 #5 lần
-        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Create define variable')
 
         # Create base folder
         self.init_folder(session, dynamic_user_data)
         self.local_storage = {
             'download' : self.download_dir,
             'screenshot' : self.screenshot_dir,
+            'log' : self.log_dir,
         }
+
+        #Create autoload
+        self.autoload = AutoLoad(self.local_storage['log'] + f'/{log_file}')
+        
+        #Define variable
+        self.SELENIUM_DEBUG_CONST = self.autoload.config['SELENIUM']['DEBUG_CONST']
+        self.dblogs = DBLogs(logs=self.autoload.logs)
+        self.expected_condition_type = 'element_to_be_clickable'
+        self.auto_screenshot = False
+        self.time_sleep_waiting = 1 #seconds
+        self.timeout_waiting = 30 #seconds
+        self.time_retry_setting = 2 #5 lần
+        self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Create define variable')        
 
         # Check internet
         if(auto_detect_timeout==True):
@@ -396,12 +400,13 @@ class SeleniumInstance:
         chrome_options = Options()
         #chrome_options.add_argument("--start-maximized")
         prefs = {
-                "download.default_directory" : self.local_storage['download']
+            "download.default_directory" : self.local_storage['download']
         }
         chrome_options.add_experimental_option("prefs",prefs)
 
         if(headless == True):
             chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--no-sandbox') # Bypass OS security model
 
         if(session != False):
             chrome_options.add_argument(f"user-data-dir={self.userdata_dir}") #Path to your chrome profile
@@ -409,7 +414,7 @@ class SeleniumInstance:
         #chrome_options.add_argument("--headless")
         #chrome_options.add_argument("--disable-infobars")
         #chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']); # Hide display "Chrome is being controlled by automated test software"
-        #chrome_options.add_extension('lib\\selenium\\chrome\\extensions\\swapmycookies.crx')
+        #chrome_options.add_extension('lib/selenium/chrome/extensions/swapmycookies.crx')
 
         prox = Proxy()
         prox.proxy_type = ProxyType.MANUAL
@@ -458,6 +463,7 @@ class SeleniumInstance:
             self.download_dir = f'{TMP_DIR}/Selenium_Storage/{session}/Downloads'
             self.screenshot_dir = f'{TMP_DIR}/Selenium_Storage/{session}/Screenshots'
             self.userdata_dir = f'{TMP_DIR}/Selenium_Storage/{session}/UserData'
+            self.log_dir = f'{TMP_DIR}/Selenium_Storage/{session}/Log'
 
             if dynamic_user_data == True:
                 self.userdata_dir = f'{TMP_DIR}/Selenium_Storage/{session}/UserData_{self.dblogs.session_id}'
@@ -466,8 +472,7 @@ class SeleniumInstance:
             Path(self.download_dir).mkdir(parents=True, exist_ok=True)
             Path(self.screenshot_dir).mkdir(parents=True, exist_ok=True)
             Path(self.userdata_dir).mkdir(parents=True, exist_ok=True)
-
-            self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Create init folder')
+            Path(self.log_dir).mkdir(parents=True, exist_ok=True)
 
     def active_current_window(self):
         self.webdriver.switch_to_window(self.current_window_handle)
@@ -594,7 +599,7 @@ class SeleniumInstance:
             self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Check exist file OK : {file}')
             file = file.replace('/', os.sep)
             file_exist = True
-        elif requests.get(file).status_code == 200:
+        elif self.autoload.download.checkfile(file) == True:
             self.dblogs.debug_log(f'{self.SELENIUM_DEBUG_CONST}Check exist url OK : {file}')
             file_exist = True
         
@@ -781,33 +786,27 @@ class MySQL:
         return True
 
 class DBLogs:
-    def __init__(self, disable=False):
-        self.config = Config().load_config()
-        self.db = MySQL(self.config['MYSQL']['HOST'], self.config['MYSQL']['DB_NAME'], self.config['MYSQL']['USERNAME'], self.config['MYSQL']['PASSWORD'], self.config['MYSQL']['PORT'])
+    def __init__(self, disable=False, logs=None):
+        self.autoload = AutoLoad()
         self.disable = disable
         self.session_id = uuid.uuid4()
-
-    def execute_log(self, execute_id='-1', message='', url=''):
-        sql = f"""
-            INSERT INTO t_execute_logs (t_execute_id, message, image_url)
-            VALUE ('{execute_id}', '{message}', '{url}');
-        """
-        self.db.execute(sql)
-
-        return None
+        self.autoload.logs = logs
 
     def debug_log(self, message=''):
+        if self.autoload.logs != None:
+            self.autoload.logs.logger.info(message)
+            
         if self.disable == False:
             sql = f"""
                 INSERT INTO t_debug_logs (session_id, message)
                 VALUE ('{self.session_id}', '{message}');
             """
-            self.db.execute(sql)
+            self.autoload.db.execute(sql)
 
         return None
 
 class Logs:
-    def __init__(self, file_log='tmp.log'):
+    def __init__(self, file_log=False):
         self.logger = self.create_logger(file_log)
 
     def create_logger(self, file_log):
@@ -826,7 +825,10 @@ class Logs:
         logger = logging.getLogger('main')
 
         #Create file handler
-        file_handler = logging.FileHandler(f'{TMP_DIR}/{file_log}')
+        if file_log != False:
+            file_handler = logging.FileHandler(f'{file_log}')
+        else:
+            file_handler = logging.FileHandler(f'{TMP_DIR}/tmp.log')
         file_handler.setFormatter(log_content_format)
         
         #Create console handler
@@ -909,6 +911,7 @@ import win32com.client
 class AutoIT:
     def __init__(self):
         self.autoit = win32com.client.Dispatch("AutoItX3.Control")
+        self.config = Config().load_config()
 
     def win_popup_select_file(self, file):
         currenttext = ''
@@ -917,13 +920,13 @@ class AutoIT:
         while currenttext != file or self.autoit.WinActive('Open') == 0:
             self.autoit.WinActivate('Open')
             self.autoit.WinWaitActive('Open')
-            self.autoit.ControlSetText('Open','','[CLASS:Edit; INSTANCE:1]', file)
-            currenttext = self.autoit.ControlGetText('Open','','[CLASS:Edit; INSTANCE:1]')
+            self.autoit.ControlSetText('Open', '', self.config['AUTOIT']['TEXTBOX_DIALOG_INPUT'], file)
+            currenttext = self.autoit.ControlGetText('Open', '', self.config['AUTOIT']['TEXTBOX_DIALOG_INPUT'])
             
         while self.autoit.WinActive('Open') == 0:
             self.autoit.WinActivate('Open')
             
-        self.autoit.ControlClick('Open','','[CLASS:Button; INSTANCE:1]')
+        self.autoit.ControlClick('Open', '', self.config['AUTOIT']['BUTTON_DIALOG_UPLOAD'])
 
         return None
 
@@ -957,6 +960,29 @@ class ExecuteAutomation:
         self.db.execute(sql)
         
         return None
+
+from downloads import download #pip install downloads
+class Download:        
+    def checkfile(self, file):
+        if requests.get(file).status_code == 200:
+            return True
+
+        return False
+
+    def getfile(self, file, out_path):
+        if self.checkfile(file) == True:
+            download(file, progress=True, out_path=out_path)
+            return out_path
+
+        return False
+
+class AutoLoad:
+    def __init__(self, file_log=False):
+        self.logs = Logs(file_log)
+        self.config = Config().load_config()
+        self.db = MySQL(self.config['MYSQL']['HOST'], self.config['MYSQL']['DB_NAME'], self.config['MYSQL']['USERNAME'], self.config['MYSQL']['PASSWORD'], self.config['MYSQL']['PORT'])
+        self.download = Download()
+        #self.cloudinary = Cloudinary(cloud_name=self.config['CLOUDINARY']['CLOUD_NAME'], api_key=self.config['CLOUDINARY']['API_KEY'], api_secret=self.config['CLOUDINARY']['API_SECRET'])
         
 
         

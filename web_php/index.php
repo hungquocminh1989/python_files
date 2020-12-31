@@ -15,7 +15,7 @@
                     <form action="./products.php" method="post">
                         <div class="form-group">
                             <label for="txt_domain">Domain</label>
-                            <input type="text" class="form-control" id="txt_domain" name="txt_domain" placeholder="http://example.com/" value="http://demo2.thanhtran.info/">
+                            <input type="text" class="form-control" id="txt_domain" name="txt_domain" placeholder="http://example.com/" value="https://demo2.thanhtran.info/">
                         </div>
                         <div class="form-group">
                             <label for="txt_key">Woo api key</label>
