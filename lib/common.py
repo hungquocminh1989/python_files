@@ -433,10 +433,10 @@ class SeleniumInstance:
             prox.add_to_capabilities(capabilities)
 
         if system_os == 'win':
-            selenium_driver = 'lib/selenium/chrome/driver/chromedriver.exe'
+            selenium_driver = f'{CURRENT_DIR}/selenium/chrome/driver/chromedriver.exe'
             self.autoit = AutoIT()
         elif system_os == 'linux':
-            selenium_driver = 'lib/selenium/chrome/driver/chromedriver'
+            selenium_driver = f'{CURRENT_DIR}/selenium/chrome/driver/chromedriver'
             chrome_options.add_argument('--disable-extensions')
             chrome_options.add_argument('--headless')
             chrome_options.add_argument('--disable-gpu')
@@ -761,7 +761,7 @@ class Cloudinary:
 
         return None
 
-import mysql.connector
+import mysql.connector #pip install mysql-connector-python
 class MySQL:
 
     def __init__(self, host, database, username, password, port=3306):
@@ -829,6 +829,7 @@ class Logs:
             file_handler = logging.FileHandler(f'{file_log}')
         else:
             file_handler = logging.FileHandler(f'{TMP_DIR}/tmp.log')
+
         file_handler.setFormatter(log_content_format)
         
         #Create console handler
