@@ -83,6 +83,8 @@ class Shared:
                     crl.setopt(crl.URL, url + "?" + postfields)
             else:
                 crl.setopt(crl.URL, url)
+        else:
+            crl.setopt(crl.URL, url)
 
         result = crl.perform_rs()
 
@@ -984,10 +986,84 @@ class AutoLoad:
         self.db = MySQL(self.config['MYSQL']['HOST'], self.config['MYSQL']['DB_NAME'], self.config['MYSQL']['USERNAME'], self.config['MYSQL']['PASSWORD'], self.config['MYSQL']['PORT'])
         self.download = Download()
         #self.cloudinary = Cloudinary(cloud_name=self.config['CLOUDINARY']['CLOUD_NAME'], api_key=self.config['CLOUDINARY']['API_KEY'], api_secret=self.config['CLOUDINARY']['API_SECRET'])
-        
 
-        
+import requests
+from bs4 import BeautifulSoup
+class Crawler:
 
+    def get_request(self, url, headers=None):
+        r = requests.get(url, headers=headers)
+
+        return r
+
+    def get_html_parser(self, data):
+        soup = BeautifulSoup(data, "html.parser")
+
+        return soup
+
+    def create_header(self):
+
+        return None
+
+class Trello:
+    def __init__(self):
+        self.autoload = AutoLoad()
+        self.auth_query = {
+            'key': self.autoload.config['TRELLO']['KEY'],
+            'token': self.autoload.config['TRELLO']['TOKEN']
+        }
+
+    def get_list_on_board(self, board_id, fillter={'fields': 'id,name'}):
+
+        url = f'https://api.trello.com/1/boards/{board_id}/lists'
+        
+        response = requests.request(
+           "GET", url, params={**self.auth_query, **fillter}
+        )
+        
+        return json.loads(response.text)
+
+    def get_card_on_list(self, list_id, fillter={'fields': 'id,name,desc'}):
+
+        url = f'https://api.trello.com/1/lists/{list_id}/cards'
+        
+        response = requests.request(
+           "GET", url, params={**self.auth_query, **fillter}
+        )
+        
+        return json.loads(response.text)
+
+    def get_attachments_on_card(self, card_id, fillter={'fields': 'id,name,url'}):
+
+        url = f'https://api.trello.com/1/cards/{card_id}/attachments'
+
+        response = requests.request(
+           "GET", url, params={**self.auth_query, **fillter}
+        )
+
+        return json.loads(response.text)
+
+    def get_checklists_on_card(self, card_id, fillter={}):
+
+        url = f'https://api.trello.com/1/cards/{card_id}/checklists'
+
+        response = requests.request(
+           "GET", url, params={**self.auth_query, **fillter}
+        )
+
+        return json.loads(response.text)
+
+    def move_card_to_list(self, card_id, list_id):
+
+        url = f'https://api.trello.com/1/cards/{card_id}'
+        query = {
+           'idList': list_id
+        }
+        response = requests.request(
+           "PUT", url, params={**self.auth_query, **query}
+        )
+        
+        return json.loads(response.text)
 
 '''
 #Chưa test

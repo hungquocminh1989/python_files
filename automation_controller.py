@@ -35,6 +35,30 @@ sys.path.append(ROOT_DIR + '/lib')
 import common, automation
 import cloudinary.uploader
 
+def get_queue():
+    trello = common.Trello()
+    autoload = common.AutoLoad()
+
+    queue_cards = trello.get_card_on_list(autoload.config['TRELLO']['QUEUE_LIST_ID'])
+    if len(queue_cards) > 0:
+        for card in queue_cards:
+            card_id = card['id']
+            title = card['name']
+            description = card['desc']
+            checklists = trello.get_checklists_on_card(card_id)
+            attachments = trello.get_attachments_on_card(card_id)
+            
+            trello.move_card_to_list(card_id, autoload.config['TRELLO']['PROCESSING_LIST_ID'])
+
+            #do somethings
+
+            trello.move_card_to_list(card_id, autoload.config['TRELLO']['COMPLETE_LIST_ID'])
+
+
+
+get_queue()
+exit()
+
 def f1():
     autoload = common.AutoLoad()
     f1 = automation.FacebookInstance(username=autoload.config['FACEBOOK_INFO']['USERNAME'],password=autoload.config['FACEBOOK_INFO']['PASSWORD'])
